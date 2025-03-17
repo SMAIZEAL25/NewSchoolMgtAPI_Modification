@@ -7,28 +7,23 @@ namespace New_School_Management_API.Entities
 {
     public class Upload
     {
-        [Key]
-        public Guid UploadfileId { get; set; }
-
-        public int StudentId { get; set; } // Foreign Key to StudentRecord (int)
+        public Guid Id { get; set; }
 
         [NotMapped]
-        public IFormFile file { get; set; } // Not mapped to the database
+        public IFormFile file { get; set; }
 
         public string FileName { get; set; }
 
-        public string fileExtension { get; set; } // e.g., "JPG" or "PDF"
+        public string? FileDescription { get; set; }
 
-        public long FileSizeInBytes { get; set; } // File size in bytes
+        public string FileExtension { get; set; }
 
-        public string filePath { get; set; }
+        public long FileSizeInBytes { get; set; }
 
-        public DateTime UploadedOn { get; set; }
-
-        public byte[] FileDescription { get; set; } // File content as byte array
+        public string FilePath { get; set; }
 
         // Navigation property to StudentRecord
-        [ForeignKey(nameof(StudentId))]
-        public StudentRecord Student { get; set; }
+        //[ForeignKey(nameof(StudentId))]
+        //public StudentRecord Student { get; set; }
     }
 }

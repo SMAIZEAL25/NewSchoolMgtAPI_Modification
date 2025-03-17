@@ -1,28 +1,35 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using New_School_Management_API.Dbcontext;
+using New_School_Management_API.MapConfig;
+using New_School_Management_API.UploadImage;
 using Serilog;
-using System.Net.NetworkInformation;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
 
 // Configure Serilog
 builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
 
+// Register AutoMapper
+builder.Services.AddAutoMapper(typeof(MappingConfig).Assembly);
 
-// Connection string for the database
+// Register IUploadImage service
+builder.Services.AddScoped<IUploadImage, UploadImage>();
+
+//HttpContextAccessor
+builder.Services.AddHttpContextAccessor();
+
+// Register DbContext
 var connectionString = builder.Configuration.GetConnectionString("StudentManagementDB");
 builder.Services.AddDbContext<StudentManagementDB>(options =>
     options.UseSqlServer(connectionString));
 
+// Configure CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", b => b
@@ -31,8 +38,14 @@ builder.Services.AddCors(options =>
         .AllowAnyMethod());
 });
 
-
 var app = builder.Build();
+
+// Ensure the upload folder exists
+var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "UploadImageFloder");
+if (!Directory.Exists(uploadFolder))
+{
+    Directory.CreateDirectory(uploadFolder);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -47,9 +60,10 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.UseStaticFiles( new StaticFileOptions
+// Serve static files from the upload folder
+app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "UploadImageFloder")),
+    FileProvider = new PhysicalFileProvider(uploadFolder),
     RequestPath = "/UploadImageFloder"
 });
 
