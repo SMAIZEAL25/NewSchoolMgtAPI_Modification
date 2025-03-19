@@ -151,7 +151,7 @@ namespace New_School_Management_API.UploadImage
             throw new NotImplementedException();
         }
 
-        public Task<APIResponse> SaveFileAsync(Upload upload)
+        public Task<APIResponse<object>> SaveFileAsync(Upload upload)
         {
             throw new NotImplementedException();
         }

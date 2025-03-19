@@ -5,11 +5,19 @@ namespace New_School_Management_API.DTO
 {
     public class GetStudentRecordDTO
     {
-        public string StudentName { get; set; }
+        public required string SurName { get; set; }
+
+        [Required]
+        [MaxLength(30)]
+        public required string MiddleName { get; set; }
+
+        [Required]
+        [MaxLength(30)]
+        public required string LastName { get; set; }
         public string Sex { get; set; }
         public string StudentEmail { get; set; }
         public int Currentlevel { get; set; }
-        public int StudentPhoneNumber { get; set; }
+        public long StudentPhoneNumber { get; set; }
         public string StudentMatriNumber { get; set; }
         public Double GPA { get; set; }
         public string? Faculty { get; set; }

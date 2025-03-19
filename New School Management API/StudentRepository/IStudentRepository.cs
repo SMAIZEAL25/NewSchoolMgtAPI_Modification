@@ -10,14 +10,15 @@ namespace New_School_Management_API.Repository
     {
         Task<bool> AddAsync(StudentRecord studentRecord);
         Task DeleteAsync(string studentMatricNumber);
-        Task<List<GetStudentRecordDTO>> GetAllAsync(GetStudentRecordDTO getStudentRecordDTO);
+        Task<List<StudentRecord>> GetStudentsByLevelAsync(int currentLevel, int skip, int take);
+
         Task<StudentRecord?> GetAsync(string studentMatricNumber);
         Task<StudentRecord?> GetByMatricNumberAsync(string studentMatricNumber);
-        Task<StudentRecord?> GetPasswordAsync(string passwordHash);
         Task<string> GetStudentResult(CheckResultDTO checkResult);
         Task<bool> GetUserNameAsync(string username);
         Task UpdateAsync(StudentRecord studentRecord);
         Task<bool> UserEmailAlreadyExist(string email);
         Task<bool> UserMatricNumberAlreadyExist(string studentMatricNumber);
+        Task<int> GetTotalStudentsByLevelAsync(int currentLevel);
     }
 }

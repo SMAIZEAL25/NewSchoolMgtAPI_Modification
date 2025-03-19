@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing.Printing;
 
 namespace New_School_Management_API.Entities
 {
@@ -43,6 +44,10 @@ namespace New_School_Management_API.Entities
         [Required]
         public int Currentlevel { get; set; }
 
+        public required string State_of_Origin { get; set; }
+
+        public string Local_Goverment_Of_Origin { get; set; }
+
         [Phone]
         public long StudentPhoneNumber { get; set; }
 
@@ -61,6 +66,10 @@ namespace New_School_Management_API.Entities
 
         // Linking the IdentityRole to StudentClass
         public string IdentityUserId { get; set; }
+
+        public int Transaction_Id { get; set; }
+
+        public int CourseRgistration_Id { get; set; }
 
         // Navigation properties
         public ICollection<TransactionDetails> Transactions { get; set; }

@@ -2,7 +2,7 @@
 
 namespace New_School_Management_API.Data
 {
-    public class APIResponse
+    public class APIResponse <T>
     {
 
 

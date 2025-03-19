@@ -10,14 +10,11 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 
-
-
-
 namespace New_School_Management_API.Data
 {
     public class AuthManager : IAuthManager
     {
-        private readonly APIResponse _response = new APIResponse();
+        private readonly APIResponse<object> _response = new APIResponse<object>();
         private readonly IMapper _mapper;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly IStudentRepository _studentRepository;
@@ -41,9 +38,9 @@ namespace New_School_Management_API.Data
             _logger = logger;
         }
 
-        public async Task<APIResponse> Register(CreateStudentDTO createStudentDTO, string role = "User")
+        public async Task<APIResponse<object>> Register(CreateStudentDTO createStudentDTO, string role = "User")
         {
-            var response = new APIResponse();
+            var response = new APIResponse<object>();
 
             _logger.LogInformation("Registering user with email {Email}", createStudentDTO.StudentEmailAddress);
 
@@ -58,11 +55,12 @@ namespace New_School_Management_API.Data
             }
 
             // Validate password
-            if (!IsValidPassword(createStudentDTO.Password))
+            var passwordValidationMessage = IsValidPassword(createStudentDTO.Password);
+            if (!string.IsNullOrEmpty(passwordValidationMessage))
             {
                 _logger.LogWarning("Password does not meet requirements for email {Email}", createStudentDTO.StudentEmailAddress);
                 response.IsSuccess = false;
-                response.ErrorMessages.Add("Password does not meet requirements.");
+                response.ErrorMessages.Add(passwordValidationMessage);
                 return response;
             }
 
@@ -82,7 +80,7 @@ namespace New_School_Management_API.Data
                 return response;
             }
 
-            // Check if the role exists
+            // Ensure the role exists
             var roleExists = await _roleManager.RoleExistsAsync(role);
             if (!roleExists)
             {
@@ -125,16 +123,20 @@ namespace New_School_Management_API.Data
             return response;
         }
 
-        private bool IsValidPassword(string password)
+        private string IsValidPassword(string password)
         {
             // Ensure password has at least one uppercase letter, one digit, and one special character
             var regex = new Regex(@"^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+={}\[\]:;'<>?,./\\-]).+$");
-            return regex.IsMatch(password);
+            if (!regex.IsMatch(password))
+            {
+                return "Password must contain at least one uppercase letter, one number, and one special character.";
+            }
+            return string.Empty; // Valid password
         }
 
-        public async Task<APIResponse> Login(LoginDTO loginDTO)
+        public async Task<APIResponse<object>> Login(LoginDTO loginDTO)
         {
-            var response = new APIResponse();
+            var response = new APIResponse<object>();
 
             _logger.LogInformation("Logging in user with email {Email}", loginDTO.Email);
 

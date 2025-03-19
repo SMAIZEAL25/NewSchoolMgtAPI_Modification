@@ -1,22 +1,22 @@
-﻿using AutoMapper;
+﻿
 using Microsoft.EntityFrameworkCore;
 using New_School_Management_API.Dbcontext;
 using New_School_Management_API.Entities;
 using SchoolManagmentAPI.StudentDTO;
-using New_School_Management_API.DTO;
-using New_School_Management_API.Repository;
+
 
 namespace New_School_Management_API.Repository
 {
     public class StudentRepository : IStudentRepository
     {
+        
         private readonly StudentManagementDB _dBContext;
-        private readonly IMapper _mapper;
+      
 
-        public StudentRepository(StudentManagementDB dBContext, IMapper mapper)
+        public StudentRepository(StudentManagementDB dBContext)
         {
             _dBContext = dBContext;
-            _mapper = mapper;
+            
         }
 
         public async Task<bool> AddAsync(StudentRecord studentRecord)
@@ -31,11 +31,22 @@ namespace New_School_Management_API.Repository
             return await _dBContext.StudentRecords.FindAsync(studentMatricNumber);
         }
 
-        public async Task<List<GetStudentRecordDTO>> GetAllAsync(GetStudentRecordDTO getStudentRecordDTO)
+        public async Task<List<StudentRecord>> GetStudentsByLevelAsync(int currentLevel, int skip, int take)
         {
-            var studentRecords = await _dBContext.StudentRecords.ToListAsync();
-            return _mapper.Map<List<GetStudentRecordDTO>>(studentRecords);
+            return await _dBContext.StudentRecords
+                .Where(s => s.Currentlevel == currentLevel)
+                .OrderBy(s => s.StudentMatricNumber)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
         }
+
+        public async Task<int> GetTotalStudentsByLevelAsync(int currentLevel)
+        {
+            return await _dBContext.StudentRecords
+                .CountAsync(s => s.Currentlevel == currentLevel);
+        }
+    
 
         public async Task<StudentRecord?> GetByMatricNumberAsync(string studentMatricNumber)
         {

@@ -2,6 +2,7 @@
 using AutoMapper;
 using New_School_Management_API.Data;
 using New_School_Management_API.DTO;
+using New_School_Management_API.PagInated_Response;
 using New_School_Management_API.Repository;
 using New_School_Management_API.StudentDTO;
 
@@ -10,7 +11,7 @@ namespace New_School_Management_API.StudentRepository
 {
     public class ServiceRepository : IServiceRepository
     {
-        private readonly APIResponse _response = new APIResponse();
+        private readonly APIResponse <object> _response = new APIResponse<object>();
         private readonly IMapper _mapper;
         private readonly IStudentRepository _studentRepository;
         private readonly ILogger<ServiceRepository> _logger;
@@ -22,7 +23,7 @@ namespace New_School_Management_API.StudentRepository
             _logger = logger;
         }
 
-        public async Task<APIResponse> UpdateStudentRecords(string studentMatricnumber, UpdateStudentDTO updateStudentDTO)
+        public async Task<APIResponse<object>> UpdateStudentRecords(string studentMatricnumber, UpdateStudentDTO updateStudentDTO)
         {
 
             _logger.LogInformation($"Updating student records for {studentMatricnumber}");
@@ -72,27 +73,49 @@ namespace New_School_Management_API.StudentRepository
 
 
 
-        public async Task<APIResponse> GetStudentRecord(GetStudentRecordDTO getStudentRecordDTO)
+        public async Task<PageResponse<GetStudentRecordDTO>> GetStudentsByLevelAsync(int currentLevel, int pageNumber, int pageSize)
         {
-            _logger.LogInformation($"Fetching student records for {getStudentRecordDTO}");
+            // Calculate the number of records to skip
+            int skip = (pageNumber - 1) * pageSize;
 
-            var studentRecords = await _studentRepository.GetAllAsync(getStudentRecordDTO);
+            // Fetch a paginated list of students
+            var students = await _studentRepository.GetStudentsByLevelAsync(currentLevel, skip, pageSize);
 
-            if (studentRecords == null)
+            // Get the total number of records
+            int totalRecords = await _studentRepository.GetTotalStudentsByLevelAsync(currentLevel);
+
+            // Calculate the total number of pages
+            int totalPages = (int)Math.Ceiling((double)totalRecords / pageSize);
+
+            // Map the result to DTO
+            var studentDTOs = students.Select(s => new GetStudentRecordDTO
             {
-                _logger.LogWarning($"Student records not found for {getStudentRecordDTO}");
-                _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Student records not found.");
-                return _response;
-            }
+                StudentMatriNumber = s.StudentMatricNumber,
+                SurName = s.SurName,
+                MiddleName = s.MiddleName,
+                LastName = s.LastName,
+                StudentEmail = s.StudentEmail,
+                Currentlevel = s.Currentlevel,
+                Faculty = s.Faculty,
+                Department = s.Department,
+                StudentPhoneNumber = s.StudentPhoneNumber,
+                Sex = s.Sex,
+                GPA = s.GPA,
+            }).ToList();
 
-            _logger.LogInformation($"Student records fetched successfully for {getStudentRecordDTO}");
-            _response.IsSuccess = true;
-            _response.Result = studentRecords;
-            return _response;
+            // Create the response with metadata
+            return new PageResponse<GetStudentRecordDTO>
+            {
+                Data = studentDTOs,
+                PageNumber = pageNumber,
+                PageSize = pageSize,
+                TotalRecords = totalRecords,
+                TotalPages = totalPages
+            };
         }
+    
 
-        public Task<APIResponse> CheckResult(string studentMatricNumber)
+        public Task<APIResponse<object>> CheckResult(string studentMatricNumber)
         {
             throw new NotImplementedException();
         }
