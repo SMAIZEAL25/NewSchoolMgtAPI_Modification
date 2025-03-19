@@ -3,27 +3,21 @@ using New_School_Management_API.DTO;
 using SchoolManagmentAPI.StudentDTO;
 using New_School_Management_API.Entities;
 
-
 namespace New_School_Management_API.Repository
 {
 
-    public interface IStudentRepository 
+    public interface IStudentRepository
     {
-        Task <bool> AddAsync(StudentRecord studentRecord );
-        Task<bool> UpdateAsync(StudentRecord updateStudentDTO);
-        Task  DeleteAsync (string StudentMatricNumber);
-        public Task<List<GetStudentRecordDTO>> GetAllAsync(string studentMatricNumber);
-        public Task<StudentRecord?> GetByMatericNumberAsync(string StudentMatricNumber);
-        public Task<string> GetStudenResult(CheckResultDTO checkResult);
-        public Task<bool> UserEmailAlreadyExist(string Email);
-        public Task<bool> GetAsync(string StudentMatricNumber);
-        public Task<StudentRecord> GetpasswordAsync(string passwordHash);
-        public Task<bool> UserMatricNumberAlreadyExist(string studentMatricNumber);
-        Task<bool> GetUserNameAysnc(string Username);
-        //Task<StudentTimetable> FetchClassTimeTableAysnc(int CurrentLevel);
-        //Task<StudentTimetable> FetchExamTimeTableAysnc(int CurrentLevel);
-        //Task<string> SeedTimeTableDataAsync(List<ScheduleItem> ClassTimetable, List<ScheduleItem> ExamTimeTable);
-       
-        
+        Task<bool> AddAsync(StudentRecord studentRecord);
+        Task DeleteAsync(string studentMatricNumber);
+        Task<List<GetStudentRecordDTO>> GetAllAsync(GetStudentRecordDTO getStudentRecordDTO);
+        Task<StudentRecord?> GetAsync(string studentMatricNumber);
+        Task<StudentRecord?> GetByMatricNumberAsync(string studentMatricNumber);
+        Task<StudentRecord?> GetPasswordAsync(string passwordHash);
+        Task<string> GetStudentResult(CheckResultDTO checkResult);
+        Task<bool> GetUserNameAsync(string username);
+        Task UpdateAsync(StudentRecord studentRecord);
+        Task<bool> UserEmailAlreadyExist(string email);
+        Task<bool> UserMatricNumberAlreadyExist(string studentMatricNumber);
     }
 }

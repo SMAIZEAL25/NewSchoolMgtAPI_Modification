@@ -12,6 +12,8 @@ namespace New_School_Management_API.DTO
         public int StudentPhoneNumber { get; set; }
         public string StudentMatriNumber { get; set; }
         public Double GPA { get; set; }
-        
+        public string? Faculty { get; set; }
+        public string? Department { get; set; }
+
     }
 }

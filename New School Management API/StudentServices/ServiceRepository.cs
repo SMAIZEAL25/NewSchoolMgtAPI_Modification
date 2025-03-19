@@ -1,11 +1,10 @@
 ﻿
 using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
 using New_School_Management_API.Data;
 using New_School_Management_API.DTO;
-using New_School_Management_API.Entities;
 using New_School_Management_API.Repository;
-using System.Text.RegularExpressions;
+using New_School_Management_API.StudentDTO;
+
 
 namespace New_School_Management_API.StudentRepository
 {
@@ -23,14 +22,13 @@ namespace New_School_Management_API.StudentRepository
             _logger = logger;
         }
 
-        public async Task<APIResponse> UpdateStudentRecords(UpdateStudentDTO updateStudent)
+        public async Task<APIResponse> UpdateStudentRecords(string studentMatricnumber, UpdateStudentDTO updateStudentDTO)
         {
-      
-            // Log the start of the operation
-            _logger.LogInformation($"Updating student records for {updateStudent?.StudentName}");
 
-            // Validate the input
-            if (updateStudent == null || string.IsNullOrEmpty(updateStudent.StudentMatricNumber))
+            _logger.LogInformation($"Updating student records for {studentMatricnumber}");
+
+            // Validate input
+            if (string.IsNullOrEmpty(studentMatricnumber) || updateStudentDTO == null)
             {
                 _response.IsSuccess = false;
                 _response.ErrorMessages.Add("Please ensure the details entered are correct.");
@@ -39,37 +37,30 @@ namespace New_School_Management_API.StudentRepository
 
             try
             {
-                // Fetch the existing record from the repository
-                var existingRecord = await _studentRepository.GetAsync(updateStudent.StudentMatricNumber);
+                // Fetch the existing record
+                var existingRecord = await _studentRepository.GetAsync(studentMatricnumber);
 
-                // Check if the record exists
                 if (existingRecord == null)
                 {
-                    _logger.LogWarning($"Student record not found for {updateStudent.StudentMatricNumber}");
+                    _logger.LogWarning($"Student record not found for {studentMatricnumber}");
                     _response.IsSuccess = false;
                     _response.ErrorMessages.Add("Student record not found.");
                     return _response;
                 }
 
-                // Map the updated fields from the DTO to the existing entity
-                 _mapper.Map(updateStudent, existingRecord);
+                // Map updated fields from DTO to existing entity
+                _mapper.Map(updateStudentDTO, existingRecord);
 
                 // Update the record in the repository
                 await _studentRepository.UpdateAsync(existingRecord);
 
-                // Log the successful update
-                _logger.LogInformation($"Student record updated successfully for {updateStudent.StudentMatricNumber}");
-
-                // Set the response
+                _logger.LogInformation($"Student record updated successfully for {studentMatricnumber}");
                 _response.IsSuccess = true;
                 _response.Message = "Student record updated successfully.";
             }
             catch (Exception ex)
             {
-                // Log the exception
-                _logger.LogError(ex, $"An error occurred while updating the student record for {updateStudent.StudentMatricNumber}");
-
-                // Set the response
+                _logger.LogError(ex, $"An error occurred while updating the student record for {studentMatricnumber}");
                 _response.IsSuccess = false;
                 _response.ErrorMessages.Add("An error occurred while updating the student record.");
                 _response.ErrorMessages.Add(ex.Message); // Include the exception message for debugging
@@ -77,25 +68,25 @@ namespace New_School_Management_API.StudentRepository
 
             return _response;
         }
-        
 
 
 
-        public async Task<APIResponse> GetStudentRecord(string studentMatricNumber)
+
+        public async Task<APIResponse> GetStudentRecord(GetStudentRecordDTO getStudentRecordDTO)
         {
-            _logger.LogInformation("Fetching student records for {StudentMatricNumber}", studentMatricNumber);
+            _logger.LogInformation($"Fetching student records for {getStudentRecordDTO}");
 
-            var studentRecords = await _studentRepository.GetAllAsync(studentMatricNumber);
+            var studentRecords = await _studentRepository.GetAllAsync(getStudentRecordDTO);
 
             if (studentRecords == null)
             {
-                _logger.LogWarning("Student records not found for {StudentMatricNumber}", studentMatricNumber);
+                _logger.LogWarning($"Student records not found for {getStudentRecordDTO}");
                 _response.IsSuccess = false;
                 _response.ErrorMessages.Add("Student records not found.");
                 return _response;
             }
 
-            _logger.LogInformation("Student records fetched successfully for {StudentMatricNumber}", studentMatricNumber);
+            _logger.LogInformation($"Student records fetched successfully for {getStudentRecordDTO}");
             _response.IsSuccess = true;
             _response.Result = studentRecords;
             return _response;
@@ -110,10 +101,6 @@ namespace New_School_Management_API.StudentRepository
         {
             throw new NotImplementedException();
         }
-
-
-
-
 
         //public async Task<APIResponse> GetTimeTableAsync(int level)
         //{
