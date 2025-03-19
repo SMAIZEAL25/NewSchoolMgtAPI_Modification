@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using New_School_Management_API.Dbcontext;
 using New_School_Management_API.MapConfig;
+using New_School_Management_API.Repository;
+using New_School_Management_API.StudentRepository;
 using New_School_Management_API.UploadImage;
 using Serilog;
 
@@ -20,6 +22,8 @@ builder.Services.AddAutoMapper(typeof(MappingConfig).Assembly);
 
 // Register IUploadImage service
 builder.Services.AddScoped<IUploadImage, UploadImage>();
+builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 
 //HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
