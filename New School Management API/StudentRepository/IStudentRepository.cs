@@ -10,7 +10,7 @@ namespace New_School_Management_API.Repository
     public interface IStudentRepository 
     {
         Task <bool> AddAsync(StudentRecord studentRecord );
-        public Task<bool> UpdateAsync(UpdateStudentDTO updateStudentDTO);
+        Task<bool> UpdateAsync(StudentRecord updateStudentDTO);
         Task  DeleteAsync (string StudentMatricNumber);
         public Task<List<GetStudentRecordDTO>> GetAllAsync(string studentMatricNumber);
         public Task<StudentRecord?> GetByMatericNumberAsync(string StudentMatricNumber);

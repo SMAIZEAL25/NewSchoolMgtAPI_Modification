@@ -1,7 +1,9 @@
 ﻿
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using New_School_Management_API.Data;
 using New_School_Management_API.DTO;
+using New_School_Management_API.Entities;
 using New_School_Management_API.Repository;
 using System.Text.RegularExpressions;
 
@@ -23,34 +25,59 @@ namespace New_School_Management_API.StudentRepository
 
         public async Task<APIResponse> UpdateStudentRecords(UpdateStudentDTO updateStudent)
         {
-            _logger.LogInformation("Updating student records for {StudentMatricNumber}", updateStudent.StudentMatricNumber);
+      
+            // Log the start of the operation
+            _logger.LogInformation($"Updating student records for {updateStudent?.StudentName}");
 
+            // Validate the input
             if (updateStudent == null || string.IsNullOrEmpty(updateStudent.StudentMatricNumber))
             {
-                _logger.LogWarning("Invalid student record update request.");
                 _response.IsSuccess = false;
                 _response.ErrorMessages.Add("Please ensure the details entered are correct.");
                 return _response;
             }
 
-            var existingRecord = await _studentRepository.GetAsync(updateStudent.StudentMatricNumber);
-
-            if (existingRecord == null)
+            try
             {
-                _logger.LogWarning("Student record not found for {StudentMatricNumber}", updateStudent.StudentMatricNumber);
+                // Fetch the existing record from the repository
+                var existingRecord = await _studentRepository.GetAsync(updateStudent.StudentMatricNumber);
+
+                // Check if the record exists
+                if (existingRecord == null)
+                {
+                    _logger.LogWarning($"Student record not found for {updateStudent.StudentMatricNumber}");
+                    _response.IsSuccess = false;
+                    _response.ErrorMessages.Add("Student record not found.");
+                    return _response;
+                }
+
+                // Map the updated fields from the DTO to the existing entity
+                 _mapper.Map(updateStudent, existingRecord);
+
+                // Update the record in the repository
+                await _studentRepository.UpdateAsync(existingRecord);
+
+                // Log the successful update
+                _logger.LogInformation($"Student record updated successfully for {updateStudent.StudentMatricNumber}");
+
+                // Set the response
+                _response.IsSuccess = true;
+                _response.Message = "Student record updated successfully.";
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                _logger.LogError(ex, $"An error occurred while updating the student record for {updateStudent.StudentMatricNumber}");
+
+                // Set the response
                 _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Student record not found.");
-                return _response;
+                _response.ErrorMessages.Add("An error occurred while updating the student record.");
+                _response.ErrorMessages.Add(ex.Message); // Include the exception message for debugging
             }
 
-            var updatedRecord = _mapper.Map<UpdateStudentDTO>(updateStudent);
-            await _studentRepository.UpdateAsync(updatedRecord);
-
-            _logger.LogInformation($"Student record updated successfully for {updatedRecord.StudentMatricNumber}", updateStudent.StudentMatricNumber);
-            _response.IsSuccess = true;
-            _response.Message = "Student record updated successfully.";
             return _response;
         }
+        
 
 
 

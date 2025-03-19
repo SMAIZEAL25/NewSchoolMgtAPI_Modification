@@ -13,7 +13,7 @@ namespace New_School_Management_API.MapConfig
             CreateMap<StudentRecord, GetStudentRecordDTO>().ReverseMap();
             // Reversed Mapping 
             CreateMap<StudentRecord, CreateStudentDTO>().ReverseMap();
-            CreateMap<StudentRecord, UpdateStudentDTO>().ReverseMap();
+            CreateMap<UpdateStudentDTO, StudentRecord>().ReverseMap();
             CreateMap<StudentRecord, CheckoutException>().ReverseMap();
             CreateMap<Upload, UploadFileDTO>().ReverseMap();
             CreateMap<StudentRecord, LoginDTO>().ReverseMap();

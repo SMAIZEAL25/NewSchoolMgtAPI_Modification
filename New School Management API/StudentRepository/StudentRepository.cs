@@ -15,7 +15,7 @@ namespace New_School_Management_API.Repository
     {
         private readonly StudentManagementDB _dBContext;
         private readonly IMapper _mapper;
-
+        private readonly APIResponse _aPIResponse = new APIResponse ();
         public StudentRepository(StudentManagementDB dBContext, IMapper mapper)
         {
             this._dBContext = dBContext;
@@ -49,6 +49,10 @@ namespace New_School_Management_API.Repository
             return _mapper.Map<List<GetStudentRecordDTO>>(studentClasses);
         }
 
+
+
+
+
         public async Task<StudentRecord?> GetByMatericNumberAsync(string StudentMatricNumber)
         {
             if (string.IsNullOrWhiteSpace(StudentMatricNumber))
@@ -59,7 +63,10 @@ namespace New_School_Management_API.Repository
                 .FirstOrDefaultAsync(s => s.StudentMatricNumber == StudentMatricNumber);
         }
 
-        public async Task<bool> UpdateAsync(UpdateStudentDTO updateStudentDTO)
+
+
+
+        public async Task<bool> UpdateAsync(StudentRecord updateStudentDTO)
         {
             var existingStudent = await _dBContext.StudentRecords.FindAsync(updateStudentDTO.StudentMatricNumber);
             if (existingStudent == null)
@@ -73,6 +80,8 @@ namespace New_School_Management_API.Repository
             return true;
         }
 
+
+
         public async Task DeleteAsync(string studentMatricNumber)
         {
             var studentToDelete = await _dBContext.StudentRecords
@@ -84,6 +93,8 @@ namespace New_School_Management_API.Repository
             _dBContext.StudentRecords.Remove(studentToDelete);
             await _dBContext.SaveChangesAsync();
         }
+
+
 
         public async Task<string> GetStudenResult(CheckResultDTO checkResult)
         {
@@ -98,6 +109,10 @@ namespace New_School_Management_API.Repository
             return "StudentResult Successful";
         }
 
+
+
+
+
         public async Task<bool> UserEmailAlreadyExist(string Email)
         {
             if (string.IsNullOrEmpty(Email))
@@ -107,6 +122,9 @@ namespace New_School_Management_API.Repository
 
             return await _dBContext.StudentRecords.AnyAsync(u => u.StudentEmail == Email);
         }
+
+
+
 
         public async Task<bool> GetUserNameAysnc(string Username)
         {
@@ -124,6 +142,9 @@ namespace New_School_Management_API.Repository
             return await _dBContext.StudentRecords
                 .SingleOrDefaultAsync(u => u.Password == passwordHash);
         }
+
+
+
 
         public async Task<bool> UserMatricNumberAlreadyExist(string studentMatricNumber)
         {
