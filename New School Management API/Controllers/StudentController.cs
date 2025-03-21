@@ -20,7 +20,7 @@ namespace New_School_Management_API.Controllers
            _logger = logger;
         }
 
-        [HttpPut("/updateStudentRequest{studentMatnumber}")]
+        [HttpPut("/updateStudentRequest{studentMatricnumber}")]
         [ValidationModelState]
         public async Task <IActionResult> UpdateStudentClass(string studenmatricNumber, [FromBody] UpdateStudentDTO updateStudentDTO)
         {
@@ -29,7 +29,7 @@ namespace New_School_Management_API.Controllers
         }
 
 
-        [HttpGet("/GetstudentRecordsByCurrentLevel")]
+        [HttpGet("/GetstudentRecordsBy{CurrentLevel}")]
 
         public async Task<IActionResult> GetStudentsByCurrentLevel(int currentLevel, int pageNumber = 1, int pageSize = 20)
         {
