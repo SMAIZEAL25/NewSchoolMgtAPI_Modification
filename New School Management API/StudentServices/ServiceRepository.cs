@@ -1,5 +1,6 @@
 ﻿
 using AutoMapper;
+using Microsoft.Extensions.Caching.Memory;
 using New_School_Management_API.Data;
 using New_School_Management_API.DTO;
 using New_School_Management_API.PagInated_Response;
@@ -15,12 +16,18 @@ namespace New_School_Management_API.StudentRepository
         private readonly IMapper _mapper;
         private readonly IStudentRepository _studentRepository;
         private readonly ILogger<ServiceRepository> _logger;
+        private readonly IMemoryCache _memoryCache;
 
-        public ServiceRepository(IStudentRepository studentRepository, IMapper mapper, ILogger<ServiceRepository> logger)
+        public ServiceRepository(IStudentRepository studentRepository, 
+            IMapper mapper, 
+            ILogger<ServiceRepository> logger,
+            IMemoryCache memoryCache
+            )
         {
             _studentRepository = studentRepository;
             _mapper = mapper;
             _logger = logger;
+            _memoryCache = memoryCache;
         }
 
         public async Task<APIResponse<object>> UpdateStudentRecords(string studentMatricnumber, UpdateStudentDTO updateStudentDTO)
@@ -113,12 +120,64 @@ namespace New_School_Management_API.StudentRepository
                 TotalPages = totalPages
             };
         }
-    
 
-        public Task<APIResponse<object>> CheckResult(string studentMatricNumber)
+
+
+        public async Task<StudentResponseClass> GetStudentResultAsync(string studentMatricNumber, bool isLoggedIn)
         {
-            throw new NotImplementedException();
+            try
+            {
+                _logger.LogInformation($"Fetching result for student: {studentMatricNumber}");
+
+                if (isLoggedIn)
+                {
+                    // Check cache first
+                    if (_memoryCache.TryGetValue($"GPA_{studentMatricNumber}", out decimal cachedGpa))
+                    {
+                        _logger.LogInformation($"Returning cached GPA for {studentMatricNumber}");
+                        return new StudentResponseClass { GPA = cachedGpa };
+                    }
+
+                    // Fetch from DB if not cached
+                    var gpaExists = await _studentRepository.CheckResultAysnc(studentMatricNumber);
+                    if (gpaExists)
+                    {
+                        var gpa = await _studentRepository.CheckResultAysnc(studentMatricNumber); // Assume this method exists
+                        _memoryCache.Set($"GPA_{studentMatricNumber}", gpa, TimeSpan.FromMinutes(5)); // Cache for 5 mins
+                        _logger.LogInformation($"Updated cache for {studentMatricNumber}");
+                        return new StudentResponseClass { GPA = gpa };
+                    }
+                }
+                else
+                {
+                    // Return full details for non-logged-in students
+                    var studentDetails = await _studentRepository.GetSpecifiRecordOfStudent(studentMatricNumber); // Assume this method exists
+                    if (studentDetails != null)
+                    {
+                        return new StudentResponseClass
+                        {
+                            //FullName = $"{studentDetails.Surname} {studentDetails.MiddleName} {studentDetails.LastName}",
+                            SurName = studentDetails.SurName,
+                            MiddleName = studentDetails.MiddleName,
+                            LastName = studentDetails.LastName,
+                            Department = studentDetails.Department,
+                            CurrentLevel = studentDetails.CurrentLevel,
+                            GPA = studentDetails.GPA
+                        };
+                    }
+                }
+
+                _logger.LogWarning($"No data found for student: {studentMatricNumber}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error fetching result for {studentMatricNumber}");
+                throw;
+            }
         }
+}
+
 
         public Task<bool> Logout()
         {

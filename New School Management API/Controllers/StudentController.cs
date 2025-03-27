@@ -1,5 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿
 using Microsoft.AspNetCore.Mvc;
+using New_School_Management_API.Data;
 using New_School_Management_API.ModelValidations;
 using New_School_Management_API.StudentDTO;
 using New_School_Management_API.StudentRepository;
@@ -11,6 +12,7 @@ namespace New_School_Management_API.Controllers
     [ApiController]
     public class StudentController : ControllerBase
     {
+        private readonly APIResponse<object> _response = new APIResponse<object>();
         private readonly IServiceRepository _serviceRepository;
         private readonly ILogger<StudentController> _logger;
 
@@ -65,6 +67,13 @@ namespace New_School_Management_API.Controllers
                 _logger.LogError(ex, $"An error occurred while fetching students for level {currentLevel}");
                 return StatusCode(500, "An internal server error occurred. Please try again later.");
             }
+        }
+
+        public async Task<StudentResponseClass> ViewResult(string matricNumber)
+        {
+            bool isLoggedIn = User.Identity.IsAuthenticated; // Example: Check login status
+            var result = await _serviceRepository.GetStudentResultAsync(matricNumber, isLoggedIn);
+            return result;
         }
     }
  }

@@ -1,7 +1,9 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
+using New_School_Management_API.Data;
 using New_School_Management_API.Dbcontext;
 using New_School_Management_API.Entities;
+using New_School_Management_API.StudentDTO;
 using SchoolManagmentAPI.StudentDTO;
 
 
@@ -9,14 +11,14 @@ namespace New_School_Management_API.Repository
 {
     public class StudentRepository : IStudentRepository
     {
-        
+
         private readonly StudentManagementDB _dBContext;
-      
+
 
         public StudentRepository(StudentManagementDB dBContext)
         {
             _dBContext = dBContext;
-            
+
         }
 
         public async Task<bool> AddAsync(StudentRecord studentRecord)
@@ -46,7 +48,7 @@ namespace New_School_Management_API.Repository
             return await _dBContext.StudentRecords
                 .CountAsync(s => s.Currentlevel == currentLevel);
         }
-    
+
 
         public async Task<StudentRecord?> GetByMatricNumberAsync(string studentMatricNumber)
         {
@@ -58,11 +60,15 @@ namespace New_School_Management_API.Repository
                 .FirstOrDefaultAsync(s => s.StudentMatricNumber == studentMatricNumber);
         }
 
+
+
         public async Task UpdateAsync(StudentRecord studentRecord)
         {
             _dBContext.StudentRecords.Update(studentRecord);
             await _dBContext.SaveChangesAsync();
         }
+
+
 
         public async Task DeleteAsync(string studentMatricNumber)
         {
@@ -76,13 +82,13 @@ namespace New_School_Management_API.Repository
             await _dBContext.SaveChangesAsync();
         }
 
-        public async Task<string> GetStudentResult(CheckResultDTO checkResult)
-        {
-            var student = await _dBContext.StudentRecords
-                .FirstOrDefaultAsync(s => s.StudentMatricNumber == checkResult.StudentMatricNumber);
+        //public async Task<string> GetStudentAsync (CheckResultDTO checkResult)
+        //{
+        //    var student = await _dBContext.StudentRecords
+        //        .FirstOrDefaultAsync(s => s.StudentMatricNumber == checkResult.StudentMatricNumber);
 
-            return "StudentResult Successful";
-        }
+        //    return "StudentResult Successful";
+        //}
 
         public async Task<bool> UserEmailAlreadyExist(string email)
         {
@@ -94,9 +100,22 @@ namespace New_School_Management_API.Repository
             return await _dBContext.StudentRecords.AnyAsync(u => u.StudentEmail == email);
         }
 
-        public async Task<bool> GetUserNameAsync(string username)
+        public IQueryable<StudentResponseClass> GetSpecifiRecordOfStudent(string StudentMatricNumber)
         {
-            return await _dBContext.StudentRecords.AnyAsync(u => u.StudentMatricNumber == username);
+            var GetResponse =  _dBContext.StudentRecords.Where(u => u.StudentMatricNumber == StudentMatricNumber).Select(u => new StudentResponseClass
+            {
+                StudentMatricNumber = u.StudentMatricNumber,
+                SurName = u.SurName,
+                MiddleName = u.MiddleName,
+                LastName = u.LastName,
+                Department = u.Department,
+                CurrentLevel = u.Currentlevel,
+            });
+            if (GetResponse != null)
+            {
+                return null;
+            }
+            return GetResponse;
         }
 
         public async Task<StudentRecord?> GetPasswordAsync(string passwordHash)
@@ -114,5 +133,21 @@ namespace New_School_Management_API.Repository
         {
             return await _dBContext.StudentRecords.AnyAsync(u => u.StudentMatricNumber == studentMatricNumber);
         }
+  
+        public async Task<bool> CheckResultAysnc(string studentMatricNumber)
+        {
+            var gpa = await _dBContext.StudentRecords
+               .Where(x => x.StudentMatricNumber == studentMatricNumber)
+               .Select(x => x.GPA)
+               .FirstOrDefaultAsync();
+
+            return gpa != null; // Returns true if GPA exists, false otherwise
+        }
+
+        public Task<string> GetStudentAysnc(CheckResultDTO checkResult)
+        {
+            throw new NotImplementedException();
+        }
     }
+
 }

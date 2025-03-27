@@ -10,7 +10,7 @@ namespace New_School_Management_API.StudentRepository
     public interface IServiceRepository
     { 
       Task<APIResponse<object>> UpdateStudentRecords(string studentMatricnumber, UpdateStudentDTO updateStudentDTO);
-      Task<APIResponse<object>> CheckResult(string StudentMatriNumber);
+      Task<StudentResponseClass> GetStudentResultAsync(string studentMatricNumber, bool isLoggedIn);
       Task<bool> Logout ();
       Task<PageResponse<GetStudentRecordDTO>> GetStudentsByLevelAsync(int currentLevel, int pageNumber, int pageSize);
     }

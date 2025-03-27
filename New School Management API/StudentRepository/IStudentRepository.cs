@@ -2,6 +2,7 @@
 using New_School_Management_API.DTO;
 using SchoolManagmentAPI.StudentDTO;
 using New_School_Management_API.Entities;
+using New_School_Management_API.StudentDTO;
 
 namespace New_School_Management_API.Repository
 {
@@ -14,11 +15,12 @@ namespace New_School_Management_API.Repository
 
         Task<StudentRecord?> GetAsync(string studentMatricNumber);
         Task<StudentRecord?> GetByMatricNumberAsync(string studentMatricNumber);
-        Task<string> GetStudentResult(CheckResultDTO checkResult);
-        Task<bool> GetUserNameAsync(string username);
+        Task<string> GetStudentAysnc (CheckResultDTO checkResult);
+        IQueryable <StudentResponseClass> GetSpecifiRecordOfStudent(StudentResponseClass studentResponseClass);
         Task UpdateAsync(StudentRecord studentRecord);
         Task<bool> UserEmailAlreadyExist(string email);
         Task<bool> UserMatricNumberAlreadyExist(string studentMatricNumber);
         Task<int> GetTotalStudentsByLevelAsync(int currentLevel);
+        Task<bool> CheckResultAysnc(string studentMatricNumber);
     }
 }
