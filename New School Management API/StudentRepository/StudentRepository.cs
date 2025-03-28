@@ -100,9 +100,10 @@ namespace New_School_Management_API.Repository
             return await _dBContext.StudentRecords.AnyAsync(u => u.StudentEmail == email);
         }
 
-        public IQueryable<StudentResponseClass> GetSpecifiRecordOfStudent(string StudentMatricNumber)
+        public IQueryable<StudentResponseClass> GetSpecifiRecordOfStudent(StudentResponseClass studentResponseClass)
         {
-            var GetResponse =  _dBContext.StudentRecords.Where(u => u.StudentMatricNumber == StudentMatricNumber).Select(u => new StudentResponseClass
+            return  _dBContext.StudentRecords.Where(u => u.StudentMatricNumber == studentResponseClass.StudentMatricNumber)
+                .Select(u => new StudentResponseClass
             {
                 StudentMatricNumber = u.StudentMatricNumber,
                 SurName = u.SurName,
@@ -111,11 +112,7 @@ namespace New_School_Management_API.Repository
                 Department = u.Department,
                 CurrentLevel = u.Currentlevel,
             });
-            if (GetResponse != null)
-            {
-                return null;
-            }
-            return GetResponse;
+
         }
 
         public async Task<StudentRecord?> GetPasswordAsync(string passwordHash)
@@ -134,20 +131,26 @@ namespace New_School_Management_API.Repository
             return await _dBContext.StudentRecords.AnyAsync(u => u.StudentMatricNumber == studentMatricNumber);
         }
   
-        public async Task<bool> CheckResultAysnc(string studentMatricNumber)
+        public async Task<decimal>  CheckResultAysnc(string studentMatricNumber)
         {
-            var gpa = await _dBContext.StudentRecords
+            return await _dBContext.StudentRecords
                .Where(x => x.StudentMatricNumber == studentMatricNumber)
                .Select(x => x.GPA)
                .FirstOrDefaultAsync();
-
-            return gpa != null; // Returns true if GPA exists, false otherwise
         }
 
-        public Task<string> GetStudentAysnc(CheckResultDTO checkResult)
+        public async Task<bool> GpaExistsAsync(string studentMatricNumber)
         {
-            throw new NotImplementedException();
+            return await _dBContext.StudentRecords
+                .AnyAsync(s => s.StudentMatricNumber == studentMatricNumber && s.GPA != null);
         }
+
+        //public Task<string> GetStudentAysnc(CheckResultDTO checkResult)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+
     }
 
 }

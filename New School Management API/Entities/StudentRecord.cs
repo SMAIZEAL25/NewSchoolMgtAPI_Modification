@@ -52,7 +52,7 @@ namespace New_School_Management_API.Entities
         public long StudentPhoneNumber { get; set; }
 
         [Required]
-        public double GPA { get; set; }
+        public Decimal GPA { get; set; }
 
         public DateTime CreatedDate { get; set; }
 

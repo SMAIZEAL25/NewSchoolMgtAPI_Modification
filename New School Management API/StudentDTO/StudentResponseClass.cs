@@ -8,6 +8,6 @@
         public string Department { get; set; }
         public int CurrentLevel { get; set; }
         public string StudentMatricNumber { get; set; }
-        public double GPA { get; set; }
+        public decimal GPA { get; set; }
     }
 }

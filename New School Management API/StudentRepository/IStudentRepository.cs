@@ -15,12 +15,13 @@ namespace New_School_Management_API.Repository
 
         Task<StudentRecord?> GetAsync(string studentMatricNumber);
         Task<StudentRecord?> GetByMatricNumberAsync(string studentMatricNumber);
-        Task<string> GetStudentAysnc (CheckResultDTO checkResult);
+        //Task<string> GetStudentAysnc (CheckResultDTO checkResult);
         IQueryable <StudentResponseClass> GetSpecifiRecordOfStudent(StudentResponseClass studentResponseClass);
         Task UpdateAsync(StudentRecord studentRecord);
         Task<bool> UserEmailAlreadyExist(string email);
         Task<bool> UserMatricNumberAlreadyExist(string studentMatricNumber);
         Task<int> GetTotalStudentsByLevelAsync(int currentLevel);
-        Task<bool> CheckResultAysnc(string studentMatricNumber);
+        Task<decimal> CheckResultAysnc(string studentMatricNumber);
+        Task<bool> GpaExistsAsync(string studentMatricNumber);
     }
 }

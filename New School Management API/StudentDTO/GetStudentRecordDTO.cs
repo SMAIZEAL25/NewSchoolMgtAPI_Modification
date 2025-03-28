@@ -19,7 +19,7 @@ namespace New_School_Management_API.DTO
         public int Currentlevel { get; set; }
         public long StudentPhoneNumber { get; set; }
         public required string StudentMatriNumber { get; set; }
-        public Double GPA { get; set; }
+        public Decimal GPA { get; set; }
         public string? Faculty { get; set; }
         public string? Department { get; set; }
 

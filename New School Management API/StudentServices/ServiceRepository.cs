@@ -139,24 +139,25 @@ namespace New_School_Management_API.StudentRepository
                     }
 
                     // Fetch from DB if not cached
-                    var gpaExists = await _studentRepository.CheckResultAysnc(studentMatricNumber);
+                    var gpaExists = await _studentRepository.GpaExistsAsync(studentMatricNumber);
                     if (gpaExists)
                     {
-                        var gpa = await _studentRepository.CheckResultAysnc(studentMatricNumber); // Assume this method exists
-                        _memoryCache.Set($"GPA_{studentMatricNumber}", gpa, TimeSpan.FromMinutes(5)); // Cache for 5 mins
+                        var gpa = await _studentRepository.CheckResultAysnc(studentMatricNumber); // Changed to GetGpaAsync
+                        _memoryCache.Set($"GPA_{studentMatricNumber}", gpa, TimeSpan.FromMinutes(5));
                         _logger.LogInformation($"Updated cache for {studentMatricNumber}");
                         return new StudentResponseClass { GPA = gpa };
                     }
                 }
                 else
                 {
-                    // Return full details for non-logged-in students
-                    var studentDetails = await _studentRepository.GetSpecifiRecordOfStudent(studentMatricNumber); // Assume this method exists
+                    // For non-logged-in students - get first matching record
+                    var studentDetails = await _studentRepository.GetSpecifiRecordOfStudent(studentMatricNumber)
+                        .FirstOrDefaultAsync(); // Added FirstOrDefaultAsync
+
                     if (studentDetails != null)
                     {
                         return new StudentResponseClass
                         {
-                            //FullName = $"{studentDetails.Surname} {studentDetails.MiddleName} {studentDetails.LastName}",
                             SurName = studentDetails.SurName,
                             MiddleName = studentDetails.MiddleName,
                             LastName = studentDetails.LastName,
@@ -176,7 +177,7 @@ namespace New_School_Management_API.StudentRepository
                 throw;
             }
         }
-}
+
 
 
         public Task<bool> Logout()
