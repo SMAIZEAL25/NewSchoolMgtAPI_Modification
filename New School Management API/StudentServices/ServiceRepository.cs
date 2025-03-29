@@ -1,5 +1,6 @@
 ﻿
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using New_School_Management_API.Data;
 using New_School_Management_API.DTO;
@@ -151,8 +152,8 @@ namespace New_School_Management_API.StudentRepository
                 else
                 {
                     // For non-logged-in students - get first matching record
-                    var studentDetails = await _studentRepository.GetSpecifiRecordOfStudent(studentMatricNumber)
-                        .FirstOrDefaultAsync(); // Added FirstOrDefaultAsync
+                    var studentDetails = await _studentRepository.GetSpecifiRecordOfStudent(new StudentResponseClass { StudentMatricNumber = studentMatricNumber })
+                       .FirstOrDefaultAsync(); // Added FirstOrDefaultAsync
 
                     if (studentDetails != null)
                     {

@@ -17,7 +17,6 @@ namespace New_School_Management_API.Entities
 
         public bool DepartmentApproval { get; set; }
 
-        public bool FacultyApproval { get; set; }
 
         public DateTime RegistrationDate { get; set; }
 

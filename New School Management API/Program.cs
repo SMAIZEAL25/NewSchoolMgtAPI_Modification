@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.OpenApi.Models;
 using New_School_Management_API.Dbcontext;
 using New_School_Management_API.MapConfig;
 using New_School_Management_API.Repository;
@@ -12,7 +13,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "School Management API", Version = "v1" });
+}); ;
 
 // Configure Serilog
 builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
@@ -24,6 +28,8 @@ builder.Services.AddAutoMapper(typeof(MappingConfig).Assembly);
 builder.Services.AddScoped<IUploadImage, UploadImage>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddMemoryCache();
+
 
 //HttpContextAccessor
 builder.Services.AddHttpContextAccessor();

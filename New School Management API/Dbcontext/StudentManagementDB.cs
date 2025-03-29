@@ -21,7 +21,11 @@ namespace New_School_Management_API.Dbcontext
 {
     base.OnModelCreating(modelBuilder);
 
-    // Configure StudentRecord -> CourseRegistrations relationship
+    modelBuilder.Entity<StudentRecord>()
+                .Property(s => s.GPA)
+                .HasPrecision(4, 2);
+
+            // Configure StudentRecord -> CourseRegistrations relationship
     modelBuilder.Entity<StudentRecord>()
         .HasMany(s => s.CourseRegistrations)
         .WithOne(cr => cr.Student)

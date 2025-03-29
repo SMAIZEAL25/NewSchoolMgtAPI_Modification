@@ -1,4 +1,5 @@
 ﻿
+using New_School_Management_API.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
@@ -40,6 +41,7 @@ namespace New_School_Management_API.DTO
         [Compare("Password", ErrorMessage = "Paasword do not match")]
         public required string ConfirmPassword { get; set; }
 
+        public CourseRegistration CourseRegistration { get; set; }
 
     }
 }

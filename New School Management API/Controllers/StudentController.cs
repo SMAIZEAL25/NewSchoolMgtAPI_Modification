@@ -69,7 +69,8 @@ namespace New_School_Management_API.Controllers
             }
         }
 
-        public async Task<StudentResponseClass> ViewResult(string matricNumber)
+        [HttpGet("View/StudentResult")]
+        public async Task<StudentResponseClass> ViewStudentResult(string matricNumber)
         {
             bool isLoggedIn = User.Identity.IsAuthenticated; // Example: Check login status
             var result = await _serviceRepository.GetStudentResultAsync(matricNumber, isLoggedIn);
