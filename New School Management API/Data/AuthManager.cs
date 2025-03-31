@@ -67,7 +67,7 @@ namespace New_School_Management_API.Data
             // Create the user
             var identityUser = new IdentityUser
             {
-                UserName = createStudentDTO.StudentEmailAddress,
+                UserName = createStudentDTO.LastName,
                 Email = createStudentDTO.StudentEmailAddress
             };
 
