@@ -1,4 +1,5 @@
 ﻿
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using New_School_Management_API.Data;
 using New_School_Management_API.ModelValidations;
@@ -10,6 +11,7 @@ namespace New_School_Management_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class StudentController : ControllerBase
     {
         private readonly APIResponse<object> _response = new APIResponse<object>();
@@ -70,6 +72,7 @@ namespace New_School_Management_API.Controllers
         }
 
         [HttpGet("View/StudentResult")]
+        
         public async Task<StudentResponseClass> ViewStudentResult(string matricNumber)
         {
             bool isLoggedIn = User.Identity.IsAuthenticated; // Example: Check login status

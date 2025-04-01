@@ -59,6 +59,8 @@ var connectionString = builder.Configuration.GetConnectionString("StudentManagem
 builder.Services.AddDbContext<StudentManagementDB>(options =>
     options.UseSqlServer(connectionString));
 
+builder.Services.AddDbContext<SchoolMgtAuthDb>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("StudentManagementAuthDB")));
+
 // Configure CORS
 builder.Services.AddCors(options =>
 {

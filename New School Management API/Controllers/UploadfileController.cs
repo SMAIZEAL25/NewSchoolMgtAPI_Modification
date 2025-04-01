@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using New_School_Management_API.Data;
@@ -10,6 +11,7 @@ namespace New_School_Management_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class UploadfileController : ControllerBase
     {
         private readonly IUploadImage _uploadImage;
