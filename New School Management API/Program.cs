@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using New_School_Management_API.Data;
 using New_School_Management_API.Dbcontext;
 using New_School_Management_API.MapConfig;
 using New_School_Management_API.Repository;
@@ -31,7 +33,20 @@ builder.Services.AddAutoMapper(typeof(MappingConfig).Assembly);
 builder.Services.AddScoped<IUploadImage, UploadImage>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IAuthManager, AuthManager>();
 builder.Services.AddMemoryCache();
+
+// IdentityUser 
+builder.Services.Configure<IdentityOptions>(
+    options =>
+    {
+        options.Password.RequireDigit = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequiredLength = 6;
+        options.Password.RequiredUniqueChars = 1;
+    });
 
 //Adding Authentication
 
@@ -44,11 +59,17 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+            ClockSkew = TimeSpan.Zero,
+            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+            ValidAudience = builder.Configuration["JwtSettings:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
         };
     });
+
+// Ensure correct Auth DB is used
+builder.Services.AddIdentity<IdentityUser, IdentityRole>()
+    .AddEntityFrameworkStores<SchoolMgtAuthDb>()
+    .AddDefaultTokenProviders();
 
 
 //HttpContextAccessor
@@ -59,7 +80,8 @@ var connectionString = builder.Configuration.GetConnectionString("StudentManagem
 builder.Services.AddDbContext<StudentManagementDB>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddDbContext<SchoolMgtAuthDb>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("StudentManagementAuthDB")));
+builder.Services.AddDbContext<SchoolMgtAuthDb>(options => options.
+UseSqlServer(builder.Configuration.GetConnectionString("StudentManagementAuthDB")));
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -69,6 +91,16 @@ builder.Services.AddCors(options =>
         .AllowAnyOrigin()
         .AllowAnyMethod());
 });
+
+
+
+
+
+//using OData
+//builder.Services.AddControllers().AddOData(Options =>
+//{
+//    Options.Select().Filter().OrderBy();
+//});
 
 var app = builder.Build();
 

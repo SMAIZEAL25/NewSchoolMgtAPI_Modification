@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using New_School_Management_API.Dbcontext;
 
@@ -11,9 +12,11 @@ using New_School_Management_API.Dbcontext;
 namespace New_School_Management_API.Migrations
 {
     [DbContext(typeof(StudentManagementDB))]
-    partial class StudentManagementDBModelSnapshot : ModelSnapshot
+    [Migration("20250401140908_Password Property Removed")]
+    partial class PasswordPropertyRemoved
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,11 +41,11 @@ namespace New_School_Management_API.Migrations
 
             modelBuilder.Entity("New_School_Management_API.Entities.CourseRegistration", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("RegistrationId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("RegistrationId"));
 
                     b.Property<string>("CourseCode")
                         .IsRequired()
@@ -52,13 +55,16 @@ namespace New_School_Management_API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("DepartmentApproval")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("RegistrationDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int>("StudentId")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.HasKey("RegistrationId");
 
                     b.HasIndex("CourseCode");
 
@@ -99,7 +105,8 @@ namespace New_School_Management_API.Migrations
 
                     b.Property<string>("IdentityUserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -131,9 +138,8 @@ namespace New_School_Management_API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StudentPhoneNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<long>("StudentPhoneNumber")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("SurName")
                         .IsRequired()

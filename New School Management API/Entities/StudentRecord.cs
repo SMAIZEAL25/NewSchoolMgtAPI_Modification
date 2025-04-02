@@ -1,9 +1,6 @@
 ﻿using New_School_Management_API.Entities.Student_Transaction;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Drawing.Printing;
 
 namespace New_School_Management_API.Entities
 {
@@ -49,7 +46,7 @@ namespace New_School_Management_API.Entities
         public string Local_Goverment_Of_Origin { get; set; }
 
         [Phone]
-        public long StudentPhoneNumber { get; set; }
+        public string StudentPhoneNumber { get; set; }
 
         [Required]
         public Decimal GPA { get; set; }
@@ -57,12 +54,6 @@ namespace New_School_Management_API.Entities
         public DateTime CreatedDate { get; set; }
 
         public DateTime UpdatedDate { get; set; }
-
-        [Required, StringLength(200, ErrorMessage = "Your Password is Limited to {2} to {1} characters", MinimumLength = 6)]
-        public required string Password { get; set; }
-
-        [Compare("Password", ErrorMessage = "Password do not match")]
-        public required string ConfirmPassword { get; set; }
 
         // Linking the IdentityRole to StudentClass
         public string IdentityUserId { get; set; }

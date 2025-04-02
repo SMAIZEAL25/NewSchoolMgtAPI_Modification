@@ -115,16 +115,16 @@ namespace New_School_Management_API.Repository
 
         }
 
-        public async Task<StudentRecord?> GetPasswordAsync(string passwordHash)
-        {
-            if (string.IsNullOrEmpty(passwordHash))
-            {
-                return null;
-            }
+        //public async Task<StudentRecord?> GetPasswordAsync(string passwordHash)
+        //{
+        //    if (string.IsNullOrEmpty(passwordHash))
+        //    {
+        //        return null;
+        //    }
 
-            return await _dBContext.StudentRecords
-                .SingleOrDefaultAsync(u => u.Password == passwordHash);
-        }
+        //    return await _dBContext.StudentRecords
+        //        .SingleOrDefaultAsync(u => u.Password == passwordHash);
+        //}
 
         public async Task<bool> UserMatricNumberAlreadyExist(string studentMatricNumber)
         {

@@ -7,16 +7,13 @@ namespace New_School_Management_API.Entities
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int RegistrationId { get; set; }
+        public int Id { get; set; }
 
         [Required]
         public int StudentId { get; set; } // Changed from string to int to match StudentRecord.Id
 
         [Required]
         public string Courses { get; set; } // Comma-separated list of courses
-
-        public bool DepartmentApproval { get; set; }
-
 
         public DateTime RegistrationDate { get; set; }
 

@@ -9,7 +9,7 @@ namespace New_School_Management_API.Data
     {
 
      
-        Task<APIResponse<object>> Register(CreateStudentDTO createStudentDTO, string role = "User");
+        Task<APIResponse<object>> Register(CreateStudentDTO createStudentDTO);
 
         Task <APIResponse<object>> Login(LoginDTO loginDTO);
     }

@@ -31,19 +31,22 @@ namespace New_School_Management_API.Dbcontext
         .WithOne(cr => cr.Student)
         .HasForeignKey(cr => cr.StudentId);
 
-    // Configure Course -> CourseRegistrations relationship
     modelBuilder.Entity<Course>()
-        .HasMany(c => c.CourseRegistrations)
-        .WithOne(cr => cr.Course)
+        .HasKey(c => c.CourseCode);
+
+            // Configure Course -> CourseRegistrations relationship
+    modelBuilder.Entity<CourseRegistration>()
+        .HasOne(cr => cr.Course)
+        .WithMany(c => c.CourseRegistrations)
         .HasForeignKey(cr => cr.CourseCode);
 
-    //// Configure Upload -> StudentRecord relationship
-    //modelBuilder.Entity<Upload>()
-    //    .HasOne(u => u.Student)
-    //    .WithMany(s => s.UploadedFiles)
-    //    .HasForeignKey(u => u.StudentId);
+            //// Configure Upload -> StudentRecord relationship
+            //modelBuilder.Entity<Upload>()
+            //    .HasOne(u => u.Student)
+            //    .WithMany(s => s.UploadedFiles)
+            //    .HasForeignKey(u => u.StudentId);
 
-    // Configure TransactionDetails -> StudentRecord relationship
+            // Configure TransactionDetails -> StudentRecord relationship
     modelBuilder.Entity<TransactionDetails>()
         .HasOne(t => t.Student)
         .WithMany(s => s.Transactions)

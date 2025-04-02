@@ -17,7 +17,7 @@ namespace New_School_Management_API.DTO
         public string Sex { get; set; }
         public required string StudentEmail { get; set; }
         public int Currentlevel { get; set; }
-        public long StudentPhoneNumber { get; set; }
+        public string StudentPhoneNumber { get; set; }
         public required string StudentMatriNumber { get; set; }
         public Decimal GPA { get; set; }
         public string? Faculty { get; set; }

@@ -38,17 +38,17 @@ namespace New_School_Management_API.Data
             _logger = logger;
         }
 
-        public async Task<APIResponse<object>> Register(CreateStudentDTO createStudentDTO, string role = "User")
+        public async Task<APIResponse<object>> Register(CreateStudentDTO createStudentDTO)
         {
             var response = new APIResponse<object>();
 
-            _logger.LogInformation("Registering user with email {Email}", createStudentDTO.StudentEmailAddress);
+            _logger.LogInformation($"Registering user with email {createStudentDTO.StudentEmailAddress}");
 
             // Check if user already exists
             var userExists = await _userManager.FindByNameAsync(createStudentDTO.StudentEmailAddress);
             if (userExists != null)
             {
-                _logger.LogWarning("User already exists with email {Email}", createStudentDTO.StudentEmailAddress);
+                _logger.LogWarning($"User already exists with email { createStudentDTO.StudentEmailAddress}");
                 response.IsSuccess = false;
                 response.ErrorMessages.Add("User already exists with this email.");
                 return response;
@@ -58,7 +58,7 @@ namespace New_School_Management_API.Data
             var passwordValidationMessage = IsValidPassword(createStudentDTO.Password);
             if (!string.IsNullOrEmpty(passwordValidationMessage))
             {
-                _logger.LogWarning("Password does not meet requirements for email {Email}", createStudentDTO.StudentEmailAddress);
+                _logger.LogWarning($"Password does not meet requirements for email { createStudentDTO.StudentEmailAddress}");
                 response.IsSuccess = false;
                 response.ErrorMessages.Add(passwordValidationMessage);
                 return response;
@@ -70,24 +70,24 @@ namespace New_School_Management_API.Data
                 UserName = createStudentDTO.LastName,
                 Email = createStudentDTO.StudentEmailAddress
             };
-
+          
             var creationResult = await _userManager.CreateAsync(identityUser, createStudentDTO.Password);
             if (!creationResult.Succeeded)
             {
-                _logger.LogWarning("Failed to create user with email {Email}", createStudentDTO.StudentEmailAddress);
+                _logger.LogWarning($"Failed to create user with email {createStudentDTO.StudentEmailAddress}" );
                 response.IsSuccess = false;
                 response.ErrorMessages.AddRange(creationResult.Errors.Select(e => e.Description));
                 return response;
             }
 
             // Ensure the role exists
-            var roleExists = await _roleManager.RoleExistsAsync(role);
+            var roleExists = await _roleManager.RoleExistsAsync(createStudentDTO.Roles);
             if (!roleExists)
             {
-                var roleCreationResult = await _roleManager.CreateAsync(new IdentityRole(role));
+                var roleCreationResult = await _roleManager.CreateAsync(new IdentityRole(createStudentDTO.Roles));
                 if (!roleCreationResult.Succeeded)
                 {
-                    _logger.LogWarning("Failed to create role {Role}", role);
+                    _logger.LogWarning($"Failed to create role {createStudentDTO.Roles}");
                     response.IsSuccess = false;
                     response.ErrorMessages.Add("Failed to create the role. Please try again.");
                     return response;
@@ -95,10 +95,10 @@ namespace New_School_Management_API.Data
             }
 
             // Assign the user to the role
-            var addToRoleResult = await _userManager.AddToRoleAsync(identityUser, role);
+            var addToRoleResult = await _userManager.AddToRoleAsync(identityUser, createStudentDTO.Roles);
             if (!addToRoleResult.Succeeded)
             {
-                _logger.LogWarning("Failed to assign role {Role} to user {Email}", role, createStudentDTO.StudentEmailAddress);
+                _logger.LogWarning($"Failed to assign role {createStudentDTO.Roles} to user {createStudentDTO.StudentMatricNumber}");
                 response.IsSuccess = false;
                 response.ErrorMessages.Add("Failed to assign the user to the role.");
                 return response;
@@ -111,13 +111,13 @@ namespace New_School_Management_API.Data
             var studentSaveResult = await _studentRepository.AddAsync(studentRecord);
             if (!studentSaveResult)
             {
-                _logger.LogWarning("Failed to save student details for email {Email}", createStudentDTO.StudentEmailAddress);
+                _logger.LogWarning($"Failed to save student details for email {createStudentDTO.StudentEmailAddress}");
                 response.IsSuccess = false;
                 response.ErrorMessages.Add("Failed to save student details. Please try again.");
                 return response;
             }
 
-            _logger.LogInformation("User registered successfully with email {Email}", createStudentDTO.StudentEmailAddress);
+            _logger.LogInformation($"User registered successfully with email {createStudentDTO.StudentEmailAddress}");
             response.IsSuccess = true;
             response.Message = "Registration successful with role assignment.";
             return response;
@@ -207,6 +207,11 @@ namespace New_School_Management_API.Data
 
             return response;
         }
+
+
+
+
+         
 
         private async Task<AuthResponse> GenerateJwtToken(APIUser user, List<string> roles)
         {
