@@ -181,11 +181,7 @@ namespace New_School_Management_API.StudentRepository
 
 
 
-        public Task<bool> Logout()
-        {
-            throw new NotImplementedException();
-        }
-
+     
         //public async Task<APIResponse> GetTimeTableAsync(int level)
         //{
         //    _logger.LogInformation("Fetching timetable for level {Level}", level);

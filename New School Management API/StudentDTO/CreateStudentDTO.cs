@@ -24,9 +24,10 @@ namespace New_School_Management_API.DTO
         
         [Required]
         public int Currentlevel { get; set; }
-      
-        public string StudentPhoneNumber { get; set; }
+
         [Phone]
+        public string StudentPhoneNumber { get; set; }
+       
         public required string StudentMatricNumber { get; set; }
 
         [Required]

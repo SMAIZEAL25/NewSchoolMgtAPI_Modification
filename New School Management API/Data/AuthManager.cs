@@ -40,7 +40,11 @@ namespace New_School_Management_API.Data
 
         public async Task<APIResponse<object>> Register(CreateStudentDTO createStudentDTO)
         {
-            var response = new APIResponse<object>();
+            var response = new APIResponse<object>
+            {
+                ErrorMessages = new List<string>()
+            };
+
 
             _logger.LogInformation($"Registering user with email {createStudentDTO.StudentEmailAddress}");
 
@@ -60,7 +64,7 @@ namespace New_School_Management_API.Data
             {
                 _logger.LogWarning($"Password does not meet requirements for email { createStudentDTO.StudentEmailAddress}");
                 response.IsSuccess = false;
-                response.ErrorMessages.Add(passwordValidationMessage);
+                response.ErrorMessages.Add("Password does not meet the requirement.");
                 return response;
             }
 
@@ -123,6 +127,9 @@ namespace New_School_Management_API.Data
             return response;
         }
 
+
+
+
         private string IsValidPassword(string password)
         {
             // Ensure password has at least one uppercase letter, one digit, and one special character
@@ -133,6 +140,8 @@ namespace New_School_Management_API.Data
             }
             return string.Empty; // Valid password
         }
+
+
 
         public async Task<APIResponse<object>> Login(LoginDTO loginDTO)
         {

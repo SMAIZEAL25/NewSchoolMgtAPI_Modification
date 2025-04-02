@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using New_School_Management_API.Data;
 using New_School_Management_API.DTO;
+using New_School_Management_API.ModelValidations;
 
 namespace New_School_Management_API.Controllers
 {
@@ -17,6 +18,7 @@ namespace New_School_Management_API.Controllers
         }
 
         [HttpPost("Api/Register/Auth")]
+        [ValidationModelState]
 
         public async Task<IActionResult> Register([FromBody] CreateStudentDTO createStudentDTO)
         {

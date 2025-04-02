@@ -11,7 +11,6 @@ namespace New_School_Management_API.StudentRepository
     { 
       Task<APIResponse<object>> UpdateStudentRecords(string studentMatricnumber, UpdateStudentDTO updateStudentDTO);
       Task<StudentResponseClass> GetStudentResultAsync(string studentMatricNumber, bool isLoggedIn);
-      Task<bool> Logout ();
       Task<PageResponse<GetStudentRecordDTO>> GetStudentsByLevelAsync(int currentLevel, int pageNumber, int pageSize);
     }
 }
