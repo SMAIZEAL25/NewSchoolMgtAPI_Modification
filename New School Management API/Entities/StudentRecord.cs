@@ -32,7 +32,7 @@ namespace New_School_Management_API.Entities
 
         [Required]
         [RegularExpression(@"^[^\s@]+@[^\s@]+\.[^\s@]+$")]
-        public string? StudentEmail { get; set; }
+        public string? StudentEmailAddress { get; set; }
 
         public string? Faculty { get; set; }
 

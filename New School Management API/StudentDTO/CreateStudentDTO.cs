@@ -30,6 +30,8 @@ namespace New_School_Management_API.DTO
        
         public required string StudentMatricNumber { get; set; }
 
+        public DateTime DateOfBirth { get; set; }
+
         [Required]
         public required string StudentEmailAddress { get; set; }
 

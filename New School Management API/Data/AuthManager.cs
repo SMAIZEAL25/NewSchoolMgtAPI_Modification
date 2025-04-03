@@ -38,7 +38,7 @@ namespace New_School_Management_API.Data
             _logger = logger;
         }
 
-        public async Task<APIResponse<object>> Register(CreateStudentDTO createStudentDTO)
+        public async Task<APIResponse<object>> Register (CreateStudentDTO createStudentDTO)
         {
             var response = new APIResponse<object>
             {

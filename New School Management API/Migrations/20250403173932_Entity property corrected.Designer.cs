@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using New_School_Management_API.Dbcontext;
 
@@ -11,9 +12,11 @@ using New_School_Management_API.Dbcontext;
 namespace New_School_Management_API.Migrations
 {
     [DbContext(typeof(StudentManagementDB))]
-    partial class StudentManagementDBModelSnapshot : ModelSnapshot
+    [Migration("20250403173932_Entity property corrected")]
+    partial class Entitypropertycorrected
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -33,7 +36,7 @@ namespace New_School_Management_API.Migrations
 
                     b.HasKey("CourseCode");
 
-                    b.ToTable("Courses", (string)null);
+                    b.ToTable("Courses");
                 });
 
             modelBuilder.Entity("New_School_Management_API.Entities.CourseRegistration", b =>
@@ -64,7 +67,7 @@ namespace New_School_Management_API.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("CourseRegistrations", (string)null);
+                    b.ToTable("CourseRegistrations");
                 });
 
             modelBuilder.Entity("New_School_Management_API.Entities.StudentRecord", b =>
@@ -148,7 +151,7 @@ namespace New_School_Management_API.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StudentRecords", (string)null);
+                    b.ToTable("StudentRecords");
                 });
 
             modelBuilder.Entity("New_School_Management_API.Entities.Student_Transaction.TransactionDetails", b =>
@@ -188,7 +191,7 @@ namespace New_School_Management_API.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Transactions", (string)null);
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("New_School_Management_API.Entities.Upload", b =>
@@ -222,7 +225,7 @@ namespace New_School_Management_API.Migrations
 
                     b.HasIndex("StudentRecordId");
 
-                    b.ToTable("Uploads", (string)null);
+                    b.ToTable("Uploads");
                 });
 
             modelBuilder.Entity("New_School_Management_API.Entities.CourseRegistration", b =>

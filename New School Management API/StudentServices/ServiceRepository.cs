@@ -102,7 +102,7 @@ namespace New_School_Management_API.StudentRepository
                 SurName = s.SurName,
                 MiddleName = s.MiddleName,
                 LastName = s.LastName,
-                StudentEmail = s.StudentEmail,
+                StudentEmail = s.StudentEmailAddress,
                 Currentlevel = s.Currentlevel,
                 Faculty = s.Faculty,
                 Department = s.Department,

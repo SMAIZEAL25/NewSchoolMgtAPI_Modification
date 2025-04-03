@@ -99,7 +99,7 @@ namespace New_School_Management_API.Repository
                 return false;
             }
 
-            return await _dBContext.StudentRecords.AnyAsync(u => u.StudentEmail == email);
+            return await _dBContext.StudentRecords.AnyAsync(u => u.StudentEmailAddress == email);
         }
 
         public IQueryable<StudentResponseClass> GetSpecifiRecordOfStudent(StudentResponseClass studentResponseClass)
