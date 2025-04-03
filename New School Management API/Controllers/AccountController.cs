@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using New_School_Management_API.Data;
 using New_School_Management_API.DTO;
 using New_School_Management_API.ModelValidations;
+using New_School_Management_API.StudentDTO;
 
 namespace New_School_Management_API.Controllers
 {
@@ -25,6 +26,13 @@ namespace New_School_Management_API.Controllers
             await _authManager.Register(createStudentDTO);
             return Ok();
 
+        }
+
+        [HttpPost("API/Login/Auth")]
+        public async Task <IActionResult> Login (LoginDTO loginDTO)
+        {
+            await _authManager.Login(loginDTO);
+            return Ok();
         }
 
     }

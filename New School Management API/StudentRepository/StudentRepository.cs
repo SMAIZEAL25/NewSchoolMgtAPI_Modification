@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using New_School_Management_API.Data;
 using New_School_Management_API.Dbcontext;
+using New_School_Management_API.DTO;
 using New_School_Management_API.Entities;
 using New_School_Management_API.StudentDTO;
 using SchoolManagmentAPI.StudentDTO;
@@ -21,11 +22,12 @@ namespace New_School_Management_API.Repository
 
         }
 
-        public async Task<bool> AddAsync(StudentRecord studentRecord)
+        public async Task<bool> creataStudentRecord (StudentRecord studentRecord)
         {
             await _dBContext.AddAsync(studentRecord);
             await _dBContext.SaveChangesAsync();
             return true;
+            
         }
 
         public async Task<StudentRecord?> GetAsync(string studentMatricNumber)

@@ -44,8 +44,11 @@ namespace New_School_Management_API.DTO
         [Compare("Password", ErrorMessage = "Paasword do not match")]
 
         public required string ConfirmPassword { get; set; }
+        public string? Faculty { get; set; }
+        public string? Department { get; set; }
+        public string? Roles { get; set; }
 
-        public string Roles { get; set; }
+
 
     }
 }

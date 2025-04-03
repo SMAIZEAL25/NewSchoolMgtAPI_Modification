@@ -18,10 +18,37 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(Options =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "School Management API", Version = "v1" });
-}); ;
+    Options.SwaggerDoc("v1", new() { Title = "SchoolManagementAPI", Version = "v1" });
+    Options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = JwtBearerDefaults.AuthenticationScheme,
+    });
+
+    Options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = JwtBearerDefaults.AuthenticationScheme,
+                },
+
+                Scheme = "OAuth2",
+                Name = JwtBearerDefaults.AuthenticationScheme,
+                In = ParameterLocation.Header
+            },
+            //Array.Empty<string>()
+            new List<string> ()
+        }
+});
+});
 
 // Configure Serilog
 builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
@@ -91,9 +118,6 @@ builder.Services.AddCors(options =>
         .AllowAnyOrigin()
         .AllowAnyMethod());
 });
-
-
-
 
 
 //using OData

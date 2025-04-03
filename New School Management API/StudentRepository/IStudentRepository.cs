@@ -9,7 +9,7 @@ namespace New_School_Management_API.Repository
 
     public interface IStudentRepository
     {
-        Task<bool> AddAsync(StudentRecord studentRecord);
+        Task<bool> creataStudentRecord(StudentRecord studentRecord);
         Task DeleteAsync(string studentMatricNumber);
         Task<List<StudentRecord>> GetStudentsByLevelAsync(int currentLevel, int skip, int take);
 
