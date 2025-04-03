@@ -23,5 +23,6 @@ namespace New_School_Management_API.Repository
         Task<int> GetTotalStudentsByLevelAsync(int currentLevel);
         Task<decimal> CheckResultAysnc(string studentMatricNumber);
         Task<bool> GpaExistsAsync(string studentMatricNumber);
+        Task<string?> GetLastMatricNumber(string deptCode, string facCode, string year);
     }
 }

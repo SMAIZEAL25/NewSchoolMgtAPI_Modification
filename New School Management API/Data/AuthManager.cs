@@ -47,7 +47,7 @@ namespace New_School_Management_API.Data
 
             _logger.LogInformation($"Registering user with email {createStudentDTO.StudentEmailAddress}");
 
-            // Check if user already exists
+        
             var userExists = await _userManager.FindByEmailAsync(createStudentDTO.StudentEmailAddress);
             if (userExists != null)
             {
@@ -57,7 +57,7 @@ namespace New_School_Management_API.Data
                 return response;
             }
 
-            // Validate password
+         
             var passwordValidationMessage = IsValidPassword(createStudentDTO.Password);
             if (!string.IsNullOrEmpty(passwordValidationMessage))
             {
@@ -67,10 +67,10 @@ namespace New_School_Management_API.Data
                 return response;
             }
 
-            // Create the user
+           
             var identityUser = new IdentityUser
             {
-                UserName = createStudentDTO.StudentEmailAddress, // Use email instead of last name
+                UserName = createStudentDTO.StudentEmailAddress, 
                 Email = createStudentDTO.StudentEmailAddress
             };
 
@@ -83,7 +83,6 @@ namespace New_School_Management_API.Data
                 return response;
             }
 
-            // Ensure the role exists
             var roleExists = await _roleManager.RoleExistsAsync(createStudentDTO.Roles);
             if (!roleExists)
             {
@@ -97,7 +96,7 @@ namespace New_School_Management_API.Data
                 }
             }
 
-            // Assign the user to the role
+          
             var addToRoleResult = await _userManager.AddToRoleAsync(identityUser, createStudentDTO.Roles);
             if (!addToRoleResult.Succeeded)
             {
@@ -107,9 +106,23 @@ namespace New_School_Management_API.Data
                 return response;
             }
 
-            // Map DTO to StudentRecord entity and save additional student data
-            var studentRecord = _mapper.Map<StudentRecord>(createStudentDTO);
+            
+            try
+            {
+                
+                var matricNumber = await GenerateMatricNumberAsync(createStudentDTO.Faculty, createStudentDTO.Department);
+                createStudentDTO.StudentMatricNumber = matricNumber;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error generating matric number: {ex.Message}");
+                response.IsSuccess = false;
+                response.ErrorMessages.Add("Failed to generate matric number. Please ensure faculty and department are provided.");
+                return response;
+            }
 
+          
+            var studentRecord = _mapper.Map<StudentRecord>(createStudentDTO);
             studentRecord.IdentityUserId = identityUser.Id; // Link IdentityUser with StudentRecord
 
             // Save student record to database
@@ -134,12 +147,9 @@ namespace New_School_Management_API.Data
 
             _logger.LogInformation($"User registered successfully with email {createStudentDTO.StudentEmailAddress}");
             response.IsSuccess = true;
-            response.Message = "Registration successful with role assignment.";
+            response.Message = "Registration successful with matric number " + createStudentDTO.StudentMatricNumber;
             return response;
         }
-
-
-
 
 
         private string IsValidPassword(string password)
@@ -153,8 +163,41 @@ namespace New_School_Management_API.Data
             return string.Empty; // Valid password
         }
 
+        // generate matric number method 
+        // Get the current year
+        // Get the first 3 letters (uppercase) or the full string if less than 3 character
+        // Increment the sequence number
+        // Format the sequence number to always have 3 digits (e.g., 001, 002, etc.)
+        // Concatenate the parts to form the matric number
+        // Retrieve the last sequential number for the given year, department, and faculty from your repository or DB.
+        // For example, this method should return an integer representing the last number generated for that group.
+        // Return the matric number in the format: DEPT/FAC/Year/Sequence
+        private async Task<string> GenerateMatricNumberAsync(string? faculty, string? department)
+        {
+
+            string deptCode = department.Length >= 3 ? department.Substring(0, 3).ToUpper() : department.ToUpper();
+            string facCode = faculty.Length >= 3 ? faculty.Substring(0, 3).ToUpper() : faculty.ToUpper();
+            string year = DateTime.UtcNow.Year.ToString();
+
+            var lastMatricNumber = await _studentRepository.GetLastMatricNumber(deptCode, facCode, year);
+
+            int newSequentialNumber = 1;
+            if (!string.IsNullOrEmpty(lastMatricNumber))
+            {
+                
+                var parts = lastMatricNumber.Split('/');
+                if (parts.Length == 4 && int.TryParse(parts[3], out int lastNumber))
+                {
+                    newSequentialNumber = lastNumber + 1;
+                }
+            } 
+            string seqFormatted = newSequentialNumber.ToString("001");
+
+            return $"{deptCode}/{facCode}/{year}/{seqFormatted}";
+        }
 
 
+        // Login Method 
         public async Task<APIResponse<object>> Login(LoginDTO loginDTO)
         {
             var response = new APIResponse<object>();

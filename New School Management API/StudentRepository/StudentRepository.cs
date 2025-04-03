@@ -147,6 +147,18 @@ namespace New_School_Management_API.Repository
                 .AnyAsync(s => s.StudentMatricNumber == studentMatricNumber && s.GPA != null);
         }
 
+        public async Task<string?> GetLastMatricNumber(string deptCode, string facCode, string year)
+        {
+            
+            var matricNumbers = await _dBContext.StudentRecords
+                .Where(s => s.StudentMatricNumber.StartsWith($"{deptCode}/{facCode}/{year}/"))
+                .OrderByDescending(s => s.StudentMatricNumber)
+                .Select(s => s.StudentMatricNumber)
+                .ToListAsync();
+
+            return matricNumbers.FirstOrDefault();
+        }
+
         //public Task<string> GetStudentAysnc(CheckResultDTO checkResult)
         //{
         //    throw new NotImplementedException();

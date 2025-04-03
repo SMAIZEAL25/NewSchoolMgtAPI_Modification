@@ -24,11 +24,11 @@ namespace New_School_Management_API.Controllers
            _logger = logger;
         }
 
-        [HttpPut("/updateStudentRequest{studentMatricnumber}")]
+        [HttpPut("/updateStudentRequest")]
         [ValidationModelState]
-        public async Task <IActionResult> UpdateStudentClass(string studenmatricNumber, [FromBody] UpdateStudentDTO updateStudentDTO)
+        public async Task<IActionResult> UpdateStudentClass(string studenmatricNumber,[FromBody] UpdateStudentDTO updateStudentDTO)
         {
-            await _serviceRepository.UpdateStudentRecords(studenmatricNumber,updateStudentDTO);
+            await _serviceRepository.UpdateStudentRecords(studenmatricNumber, updateStudentDTO);
             return Ok();
         }
 
@@ -45,12 +45,8 @@ namespace New_School_Management_API.Controllers
                 return BadRequest("Current level must be between 100 and 400, \"Page number and page size must be greater than 0.\"");
             }
 
-            // Validate the page number and page size
-            //if (pageNumber < 1 || pageSize < 1)
-            //{
-            //    return BadRequest("Page number and page size must be greater than 0.");
-            //}
-
+            // Validate the page number and page size //if (pageNumber < 1 || pageSize < 1) //{//    return BadRequest("Page number and page size must be greater than 0.");//}
+            
             try
             {
                 // Call the service method to get paginated students
