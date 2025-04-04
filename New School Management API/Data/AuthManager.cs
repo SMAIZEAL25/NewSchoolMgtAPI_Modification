@@ -200,7 +200,10 @@ namespace New_School_Management_API.Data
         // Login Method 
         public async Task<APIResponse<object>> Login(LoginDTO loginDTO)
         {
-            var response = new APIResponse<object>();
+            var response = new APIResponse<object>
+            {
+                ErrorMessages = new List<string>()
+            };
 
             _logger.LogInformation("Logging in user with email {Email}", loginDTO.Email);
 
@@ -240,7 +243,7 @@ namespace New_School_Management_API.Data
             var apiUser = user as APIUser;
             if (apiUser == null)
             {
-                _logger.LogError("User type mismatch for email {Email}", loginDTO.Email);
+                _logger.LogError($"User type mismatch for email {loginDTO.Email}");
                 response.IsSuccess = false;
                 response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
                 response.ErrorMessages.Add("User type mismatch.");
@@ -271,6 +274,7 @@ namespace New_School_Management_API.Data
 
             return response;
         }
+
 
 
         private async Task<AuthResponse> GenerateJwtToken(APIUser user, List<string> roles)
