@@ -231,7 +231,7 @@ namespace New_School_Management_API.Data
 
             // Check roles optional
             var roles = (await _userManager.GetRolesAsync(user)).ToList();
-            if (roles == null || !roles.Contains("User"))
+            if (roles == null || !roles.Contains("User, write"))
             {
                 _logger.LogWarning("User does not have the required role for email {Email}", loginDTO.Email);
                 response.IsSuccess = false;
