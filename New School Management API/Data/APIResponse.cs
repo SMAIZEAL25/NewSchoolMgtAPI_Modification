@@ -11,7 +11,7 @@ namespace New_School_Management_API.Data
         public bool IsSuccess { get; set; } = true;
         public string Message { get; set; }
         public object Data { get; set; }
-        public List<string> ErrorMessages { get; set; }
+        public List<string> ErrorMessages { get; set; } = new List<string>();
         public object Result { get; set; }
 
 

@@ -16,12 +16,10 @@ namespace New_School_Management_API.StudentDTO
         [Required]
         [MaxLength(30)]
         public required string LastName { get; set; }
-
         public DateTime DateOfBirth { get; set; }
-
         public string StudentEmail { get; set; }
         public int Currentlevel { get; set; }
-        public int StudentPhoneNumber { get; set; }
+        public string StudentPhoneNumber { get; set; }
     
     }
 }

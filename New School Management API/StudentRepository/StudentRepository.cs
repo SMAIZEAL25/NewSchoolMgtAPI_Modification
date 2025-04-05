@@ -32,7 +32,7 @@ namespace New_School_Management_API.Repository
 
         public async Task<StudentRecord?> GetAsync(string studentMatricNumber)
         {
-            return await _dBContext.StudentRecords.FindAsync(studentMatricNumber);
+            return await _dBContext.StudentRecords.FirstOrDefaultAsync(s => s.StudentMatricNumber == studentMatricNumber);
         }
 
         public async Task<List<StudentRecord>> GetStudentsByLevelAsync(int currentLevel, int skip, int take)

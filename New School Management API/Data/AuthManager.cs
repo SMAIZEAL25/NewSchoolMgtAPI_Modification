@@ -205,7 +205,7 @@ namespace New_School_Management_API.Data
                 ErrorMessages = new List<string>()
             };
 
-            _logger.LogInformation("Logging in user with email {Email}", loginDTO.Email);
+            _logger.LogInformation($"Logging in user with email {loginDTO.Email}");
 
             // Find user by email
             var user = await _userManager.FindByEmailAsync(loginDTO.Email);

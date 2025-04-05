@@ -11,7 +11,7 @@ namespace New_School_Management_API.Entities
         public int Id { get; set; } // Primary Key (Guid)
 
         [Required]
-        public required string StudentMatricNumber { get; set; }
+        public  string StudentMatricNumber { get; set; }
 
         [Required]
         [MaxLength(30)]

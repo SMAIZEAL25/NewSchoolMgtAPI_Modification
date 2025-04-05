@@ -9,9 +9,10 @@ using New_School_Management_API.StudentRepository;
 
 namespace New_School_Management_API.Controllers
 {
-    [Route("api/[controller]")]
+   
     [ApiController]
-    [Authorize]
+    [Route("api/[controller]")]
+
     public class StudentController : ControllerBase
     {
         private readonly APIResponse<object> _response = new APIResponse<object>();
@@ -33,8 +34,7 @@ namespace New_School_Management_API.Controllers
         }
 
 
-        [HttpGet("/GetstudentRecordsBy{CurrentLevel}")]
-
+        [HttpGet("/GetStudentsByCurrentLevel")]
         public async Task<IActionResult> GetStudentsByCurrentLevel(int currentLevel, int pageNumber = 1, int pageSize = 20)
         {
             _logger.LogInformation($"Fetching students for level {currentLevel}, page {pageNumber}, page size {pageSize}");
@@ -56,7 +56,6 @@ namespace New_School_Management_API.Controllers
                 {
                     return NotFound("No students found for the specified level and page.");
                 }
-
                 // Return the paginated list of students with metadata
                 return Ok(response);
             }
@@ -67,8 +66,9 @@ namespace New_School_Management_API.Controllers
             }
         }
 
+
+
         [HttpGet("View/StudentResult")]
-        
         public async Task<StudentResponseClass> ViewStudentResult(string matricNumber)
         {
             bool isLoggedIn = User.Identity.IsAuthenticated; // Example: Check login status

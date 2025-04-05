@@ -33,50 +33,49 @@ namespace New_School_Management_API.StudentRepository
 
         public async Task<APIResponse<object>> UpdateStudentRecords(string studentMatricnumber, UpdateStudentDTO updateStudentDTO)
         {
+            // Initialize a new response for this request
+            var response = new APIResponse<object>();
 
             _logger.LogInformation($"Updating student records for {studentMatricnumber}");
 
             // Validate input
             if (string.IsNullOrEmpty(studentMatricnumber) || updateStudentDTO == null)
             {
-                _response.IsSuccess = false;
-                _response.ErrorMessages.Add("Please ensure the details entered are correct.");
-                return _response;
+                response.IsSuccess = false;
+                response.ErrorMessages.Add("Please ensure the details entered are correct.");
+                return response;
             }
 
             try
             {
-                // Fetch the existing record
                 var existingRecord = await _studentRepository.GetAsync(studentMatricnumber);
 
                 if (existingRecord == null)
                 {
                     _logger.LogWarning($"Student record not found for {studentMatricnumber}");
-                    _response.IsSuccess = false;
-                    _response.ErrorMessages.Add("Student record not found.");
-                    return _response;
+                    response.IsSuccess = false;
+                    response.ErrorMessages.Add("Student record not found.");
+                    return response;
                 }
 
-                // Map updated fields from DTO to existing entity
                 _mapper.Map(updateStudentDTO, existingRecord);
-
-                // Update the record in the repository
                 await _studentRepository.UpdateAsync(existingRecord);
 
                 _logger.LogInformation($"Student record updated successfully for {studentMatricnumber}");
-                _response.IsSuccess = true;
-                _response.Message = "Student record updated successfully.";
+                response.IsSuccess = true;
+                response.Message = "Student record updated successfully.";
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"An error occurred while updating the student record for {studentMatricnumber}");
-                _response.IsSuccess = false;
-                _response.ErrorMessages.Add("An error occurred while updating the student record.");
-                _response.ErrorMessages.Add(ex.Message); // Include the exception message for debugging
+                response.IsSuccess = false;
+                response.ErrorMessages.Add("An error occurred while updating the student record.");
+                response.ErrorMessages.Add(ex.Message);
             }
 
-            return _response;
+            return response;
         }
+
 
 
 
@@ -163,6 +162,7 @@ namespace New_School_Management_API.StudentRepository
                             MiddleName = studentDetails.MiddleName,
                             LastName = studentDetails.LastName,
                             Department = studentDetails.Department,
+                            StudentMatricNumber = studentDetails.StudentMatricNumber,
                             CurrentLevel = studentDetails.CurrentLevel,
                             GPA = studentDetails.GPA
                         };
