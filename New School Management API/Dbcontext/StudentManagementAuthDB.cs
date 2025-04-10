@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using New_School_Management_API.Data;
 
 namespace New_School_Management_API.Dbcontext
 {
-    public class SchoolMgtAuthDb : IdentityDbContext
+    public class StudentManagementAuthDB : IdentityDbContext
     {
-        public SchoolMgtAuthDb(DbContextOptions<SchoolMgtAuthDb> options) : base(options)
+        public StudentManagementAuthDB(DbContextOptions<StudentManagementAuthDB> options) : base(options)
         {
         }
 

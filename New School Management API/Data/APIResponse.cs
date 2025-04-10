@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Drawing;
+using System.Net;
 
 namespace New_School_Management_API.Data
 {
@@ -12,9 +13,9 @@ namespace New_School_Management_API.Data
         public string Message { get; set; }
         public object Data { get; set; }
         public List<string> ErrorMessages { get; set; } = new List<string>();
-        public object Result { get; set; }
-
-
+        public string Token { get; set; }
+        public DateTime ExpiresIn { get; set; }
+        public string UserId { get; set; }
 
     }
 }

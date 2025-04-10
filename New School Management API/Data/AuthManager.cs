@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Net;
 
 namespace New_School_Management_API.Data
 {
@@ -205,7 +206,7 @@ namespace New_School_Management_API.Data
                 ErrorMessages = new List<string>()
             };
 
-            _logger.LogInformation($"Logging in user with email {loginDTO.Email}");
+            _logger.LogInformation("Logging in user with email {Email}", loginDTO.Email);
 
             // Find user by email
             var user = await _userManager.FindByEmailAsync(loginDTO.Email);
@@ -213,72 +214,62 @@ namespace New_School_Management_API.Data
             {
                 _logger.LogWarning("User not found with email {Email}", loginDTO.Email);
                 response.IsSuccess = false;
-                response.StatusCode = System.Net.HttpStatusCode.NotFound;
-                response.ErrorMessages.Add("User not found. Please register.");
-                return response;
-            }
-
-            // Verify password
-            var isPasswordValid = await _userManager.CheckPasswordAsync(user, loginDTO.Password);
-            if (!isPasswordValid)
-            {
-                _logger.LogWarning("Invalid password for email {Email}", loginDTO.Email);
-                response.IsSuccess = false;
-                response.StatusCode = System.Net.HttpStatusCode.Unauthorized;
+                response.StatusCode = HttpStatusCode.NotFound;
                 response.ErrorMessages.Add("Invalid email or password.");
                 return response;
             }
 
-            // Check roles optional
-            var roles = (await _userManager.GetRolesAsync(user)).ToList();
-            if (roles == null || !roles.Contains("User, write"))
+            // Verify password
+            if (!await _userManager.CheckPasswordAsync(user, loginDTO.Password))
             {
-                _logger.LogWarning("User does not have the required role for email {Email}", loginDTO.Email);
+                _logger.LogWarning("Invalid password for email {Email}", loginDTO.Email);
                 response.IsSuccess = false;
-                response.StatusCode = System.Net.HttpStatusCode.Forbidden;
-                response.ErrorMessages.Add("User does not have the required role.");
+                response.StatusCode = HttpStatusCode.Unauthorized;
+                response.ErrorMessages.Add("Invalid email or password.");
                 return response;
             }
 
-            var apiUser = user as APIUser;
-            if (apiUser == null)
+            // Check roles
+            var roles = (await _userManager.GetRolesAsync(user)).ToList();
+            if (!roles.Any(r => r == "Reader" || r == "Writer"))
             {
-                _logger.LogError($"User type mismatch for email {loginDTO.Email}");
+                _logger.LogWarning("User does not have the required role for email {Email}", loginDTO.Email);
                 response.IsSuccess = false;
-                response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
-                response.ErrorMessages.Add("User type mismatch.");
+                response.StatusCode = HttpStatusCode.Forbidden;
+                response.ErrorMessages.Add("User does not have required role.");
                 return response;
             }
 
             // Generate a JWT token
-            var jwtResult = await GenerateJwtToken(apiUser, roles);
+            var jwtResult = await GenerateJwtToken(user, roles);
             if (jwtResult == null)
             {
                 _logger.LogError("Error generating token for email {Email}", loginDTO.Email);
                 response.IsSuccess = false;
-                response.StatusCode = System.Net.HttpStatusCode.InternalServerError;
-                response.ErrorMessages.Add("An error occurred while generating the token.");
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                response.ErrorMessages.Add("An error occurred during authentication.");
                 return response;
             }
 
             _logger.LogInformation("User logged in successfully with email {Email}", loginDTO.Email);
-            // Successful login
+
             response.IsSuccess = true;
-            response.StatusCode = System.Net.HttpStatusCode.OK;
+            response.StatusCode = HttpStatusCode.OK;
             response.Message = "Login successful.";
-            response.Data = new
-            {
-                UserId = jwtResult.UserId,
-                Token = jwtResult.Token
-            };
+            response.ExpiresIn = jwtResult.ExpiresIn;
+            response.Token = jwtResult.Token;
+            response.UserId = jwtResult.UserId;
 
             return response;
         }
 
-
-
-        private async Task<AuthResponse> GenerateJwtToken(APIUser user, List<string> roles)
+        private async Task<APIResponse<object>> GenerateJwtToken(IdentityUser user, List<string> roles)
         {
+            var response = new APIResponse<object>
+            {
+                ErrorMessages = new List<string>()
+            };
+
             try
             {
                 _logger.LogInformation("Generating JWT token for user {UserId}", user.Id);
@@ -287,38 +278,42 @@ namespace New_School_Management_API.Data
                 var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
                 var userClaims = await _userManager.GetClaimsAsync(user);
-                var roleClaims = roles.Select(x => new Claim(ClaimTypes.Role, x)).ToList();
+                var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role)).ToList();
 
                 var claims = new List<Claim>
                 {
                     new Claim(JwtRegisteredClaimNames.Sub, user.Email),
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
-                    new Claim("Guid", user.Id),
+                    new Claim("uid", user.Id),
                 }
                 .Union(userClaims)
                 .Union(roleClaims);
 
-                var token = new JwtSecurityToken
-                (
+                var tokenDuration = Convert.ToInt32(_configuration["JwtSettings:DurationInMinutes"]);
+
+                var token = new JwtSecurityToken(
                     issuer: _configuration["JwtSettings:Issuer"],
                     audience: _configuration["JwtSettings:Audience"],
                     claims: claims,
-                    expires: DateTime.Now.AddMinutes(Convert.ToInt32(_configuration["JwtSettings:DurationInMinutes"])),
+                    expires: DateTime.UtcNow.AddMinutes(tokenDuration),
                     signingCredentials: credentials
                 );
 
-                _logger.LogInformation("JWT token generated successfully for user {UserId}", user.Id);
-                return new AuthResponse
-                {
-                    UserId = user.Id,
-                    Token = new JwtSecurityTokenHandler().WriteToken(token)
-                };
+                _logger.LogInformation($"JWT token generated successfully for user {user.Id}");
+
+                response.Token = new JwtSecurityTokenHandler().WriteToken(token);
+                response.ExpiresIn = token.ValidTo;
+                response.UserId = user.Id;
+                response.IsSuccess = true;
+                return response;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error generating JWT token for user {UserId}", user.Id);
-                return null;
+                response.IsSuccess = false;
+                response.ErrorMessages.Add("An error occurred while generating the token.");
+                return response;
             }
         }
     }

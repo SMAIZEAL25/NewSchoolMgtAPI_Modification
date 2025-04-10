@@ -11,9 +11,9 @@ using New_School_Management_API.Dbcontext;
 
 namespace New_School_Management_API.Migrations.SchoolMgtAuthDbMigrations
 {
-    [DbContext(typeof(SchoolMgtAuthDb))]
-    [Migration("20250402071642_modification")]
-    partial class modification
+    [DbContext(typeof(StudentManagementAuthDB))]
+    [Migration("20250409230056_identityUser")]
+    partial class identityUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

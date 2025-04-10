@@ -12,11 +12,19 @@ using New_School_Management_API.StudentRepository;
 using New_School_Management_API.UploadImage;
 using Serilog;
 using System.Text;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+     {
+         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+         options.JsonSerializerOptions.WriteIndented = true;
+
+
+     });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(Options =>
 {
@@ -93,9 +101,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// Ensure correct Auth DB is used
+// Ensure correct Auth DB is used // Use APIUser instead of IdentityUser because it's inherit from id
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
-    .AddEntityFrameworkStores<SchoolMgtAuthDb>()
+    .AddEntityFrameworkStores<StudentManagementAuthDB>()
     .AddDefaultTokenProviders();
 
 
@@ -107,7 +115,7 @@ var connectionString = builder.Configuration.GetConnectionString("StudentManagem
 builder.Services.AddDbContext<StudentManagementDB>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddDbContext<SchoolMgtAuthDb>(options => options.
+builder.Services.AddDbContext<StudentManagementAuthDB>(options => options.
 UseSqlServer(builder.Configuration.GetConnectionString("StudentManagementAuthDB")));
 
 // Configure CORS
