@@ -11,7 +11,7 @@ namespace New_School_Management_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+
     public class UploadfileController : ControllerBase
     {
         private readonly IUploadImage _uploadImage;

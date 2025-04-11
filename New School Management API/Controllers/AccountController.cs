@@ -31,8 +31,8 @@ namespace New_School_Management_API.Controllers
         [HttpPost("API/Login/Auth")]
         public async Task <IActionResult> Login (LoginDTO loginDTO)
         {
-            await _authManager.Login(loginDTO);
-            return Ok();
+            var result = await _authManager.Login(loginDTO);
+            return Ok(result);
         }
 
     }

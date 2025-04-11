@@ -258,7 +258,7 @@ namespace New_School_Management_API.Data
             response.Message = "Login successful.";
             response.ExpiresIn = jwtResult.ExpiresIn;
             response.Token = jwtResult.Token;
-            response.UserId = jwtResult.UserId;
+            //response.UserId = jwtResult.UserId;
 
             return response;
         }
@@ -304,7 +304,7 @@ namespace New_School_Management_API.Data
 
                 response.Token = new JwtSecurityTokenHandler().WriteToken(token);
                 response.ExpiresIn = token.ValidTo;
-                response.UserId = user.Id;
+                //response.UserId = user.Id;
                 response.IsSuccess = true;
                 return response;
             }
