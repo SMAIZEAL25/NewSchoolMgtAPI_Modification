@@ -10,6 +10,6 @@ namespace New_School_Management_API.StudentDTO
        
       [Required]
       public string Filename { get; set; } 
-     public string? FileDescription { get; set; }
+      public string? FileDescription { get; set; }
     }
 }

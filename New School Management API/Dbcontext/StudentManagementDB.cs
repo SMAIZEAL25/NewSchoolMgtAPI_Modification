@@ -40,14 +40,14 @@ namespace New_School_Management_API.Dbcontext
         .WithMany(c => c.CourseRegistrations)
         .HasForeignKey(cr => cr.CourseCode);
 
-            //// Configure Upload -> StudentRecord relationship
-            //modelBuilder.Entity<Upload>()
-            //    .HasOne(u => u.Student)
-            //    .WithMany(s => s.UploadedFiles)
-            //    .HasForeignKey(u => u.StudentId);
+    // Configure Upload -> StudentRecord relationship
+    modelBuilder.Entity<Upload>()
+                .HasOne(u => u.Student)
+                .WithMany(s => s.UploadedFiles)
+                .HasForeignKey(u => u.Id);
 
-            // Configure TransactionDetails -> StudentRecord relationship
-    modelBuilder.Entity<TransactionDetails>()
+    // Configure TransactionDetails -> StudentRecord relationship
+     modelBuilder.Entity<TransactionDetails>()
         .HasOne(t => t.Student)
         .WithMany(s => s.Transactions)
         .HasForeignKey(t => t.StudentId)

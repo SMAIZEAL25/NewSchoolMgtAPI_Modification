@@ -62,10 +62,14 @@ namespace New_School_Management_API.Entities
         public int CourseRgistration_Id { get; set; }
 
         // Navigation properties
-        public ICollection<TransactionDetails> Transactions { get; set; }
+        //public ICollection<TransactionDetails> Transactions { get; set; }
 
-        public ICollection<CourseRegistration> CourseRegistrations { get; set; }
+        //public ICollection<CourseRegistration> CourseRegistrations { get; set; }
 
-        public ICollection<Upload> UploadedFiles { get; set; }
+        //public ICollection<Upload> UploadedFiles { get; set; }
+
+        public ICollection<TransactionDetails> Transactions { get; set; } = new List<TransactionDetails>();
+        public ICollection<CourseRegistration> CourseRegistrations { get; set; } = new List<CourseRegistration>();
+        public ICollection<Upload> UploadedFiles { get; set; } = new List<Upload>();
     }
 }
