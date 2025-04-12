@@ -6,6 +6,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using New_School_Management_API.Data;
 using New_School_Management_API.Dbcontext;
+using New_School_Management_API.EmailService.EmailModel;
+using New_School_Management_API.EmailService;
 using New_School_Management_API.MapConfig;
 using New_School_Management_API.Repository;
 using New_School_Management_API.StudentRepository;
@@ -70,6 +72,13 @@ builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IAuthManager, AuthManager>();
 builder.Services.AddMemoryCache();
+
+
+//EmailService
+builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
+builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection("ApplicationSettings"));
+builder.Services.AddTransient<IEmailService, EmailService>();
+
 
 // IdentityUser 
 builder.Services.Configure<IdentityOptions>(
