@@ -7,7 +7,6 @@ namespace New_School_Management_API.Entities
     public class StudentRecord
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; } // Primary Key (Guid)
 
         [Required]

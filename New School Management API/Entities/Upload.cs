@@ -22,8 +22,9 @@ namespace New_School_Management_API.Entities
 
         public string FilePath { get; set; }
 
-        // Navigation property to StudentRecord
-        //[ForeignKey(nameof(StudentId))]
-        //public StudentRecord Student { get; set; }
+        //Navigation property to StudentRecord
+
+       [ForeignKey(nameof(Id))]
+        public StudentRecord Student { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis.CSharp;
 using New_School_Management_API.Data;
 using New_School_Management_API.DTO;
 using New_School_Management_API.EmailService;
@@ -26,19 +27,19 @@ namespace New_School_Management_API.Controllers
 
         public async Task<IActionResult> Register([FromBody] CreateStudentDTO createStudentDTO)
         {
-            await _authManager.Register(createStudentDTO);
-            return Ok();
-
+            var result = await _authManager.Register(createStudentDTO);
+            await _emailService.SendRegistrationSuccessEmailAsync(createStudentDTO.StudentEmailAddress, createStudentDTO.LastName);
+            return Ok(result);
         }
+
+
 
         [HttpPost("API/Login/Auth")]
         public async Task <IActionResult> Login (LoginDTO loginDTO)
         {
             var result = await _authManager.Login(loginDTO);
-
             var IpAddress = HttpContext.Connection.RemoteIpAddress.ToString();
             await _emailService.SendLoginNotificationAsync(loginDTO.Email, IpAddress, DateTime.UtcNow);
-
             return Ok(result);
         }
 
