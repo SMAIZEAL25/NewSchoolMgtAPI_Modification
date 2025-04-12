@@ -6,6 +6,7 @@ namespace New_School_Management_API.EmailService
     {
       Task SendLoginNotificationAsync(string recipientEmail, string ipAddress, DateTime loginTime);
       Task SendEmailAsync(string recipientEmail, string subject, string body);
-        
+      Task SendRegistrationSuccessEmailAsync(string recipientEmail, string username);
+
     }
 }
