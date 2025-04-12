@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using New_School_Management_API.Data;
 using New_School_Management_API.DTO;
+using New_School_Management_API.EmailService;
 using New_School_Management_API.ModelValidations;
 using New_School_Management_API.StudentDTO;
 
@@ -12,10 +13,12 @@ namespace New_School_Management_API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAuthManager _authManager;
+        private readonly IEmailService _emailService;
 
-        public AccountController(IAuthManager authManager)
+        public AccountController(IAuthManager authManager, IEmailService emailService)
         {
-            _authManager = authManager; 
+            _authManager = authManager;
+            _emailService = emailService;
         }
 
         [HttpPost("Api/Register/Auth")]
@@ -32,6 +35,10 @@ namespace New_School_Management_API.Controllers
         public async Task <IActionResult> Login (LoginDTO loginDTO)
         {
             var result = await _authManager.Login(loginDTO);
+
+            var IpAddress = HttpContext.Connection.RemoteIpAddress.ToString();
+            await _emailService.SendLoginNotificationAsync(loginDTO.Email, IpAddress, DateTime.UtcNow);
+
             return Ok(result);
         }
 

@@ -2,8 +2,8 @@
 {
     public class ApplicationSettings
     {
-        public string LoginSuccessful { get; set; }
+        public string ApplicationName { get; set; }
 
-        public string studentResult { get; set; }
+        public string LoginNotificationSubject { get; set; }
     }
 }
