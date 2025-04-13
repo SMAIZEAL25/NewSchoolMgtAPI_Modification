@@ -44,10 +44,11 @@ namespace New_School_Management_API.Dbcontext
     modelBuilder.Entity<Upload>()
                 .HasOne(u => u.Student)
                 .WithMany(s => s.UploadedFiles)
-                .HasForeignKey(u => u.Id);
+                .HasForeignKey(u => u.Id)
+                .OnDelete(DeleteBehavior.Cascade);
 
-    // Configure TransactionDetails -> StudentRecord relationship
-     modelBuilder.Entity<TransactionDetails>()
+            // Configure TransactionDetails -> StudentRecord relationship
+    modelBuilder.Entity<TransactionDetails>()
         .HasOne(t => t.Student)
         .WithMany(s => s.Transactions)
         .HasForeignKey(t => t.StudentId)
