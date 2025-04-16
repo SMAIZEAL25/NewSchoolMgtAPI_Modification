@@ -54,7 +54,7 @@ namespace New_School_Management_API.Entities
 
         public DateTime UpdatedDate { get; set; }
 
-        // Linking the IdentityRole to StudentClass
+        // Linking the IdentityUser to StudentClass
         public string IdentityUserId { get; set; }
 
         public int Transaction_Id { get; set; }

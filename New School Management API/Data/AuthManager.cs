@@ -71,11 +71,12 @@ namespace New_School_Management_API.Data
            
             var identityUser = new IdentityUser
             {
-                UserName = createStudentDTO.StudentEmailAddress, 
-                Email = createStudentDTO.StudentEmailAddress
+                UserName = createStudentDTO.LastName, 
+                Email = createStudentDTO.StudentEmailAddress,
+                PasswordHash = createStudentDTO.Password
             };
 
-            var creationResult = await _userManager.CreateAsync(identityUser, createStudentDTO.Password);
+            var creationResult = await _userManager.CreateAsync(identityUser);
             if (!creationResult.Succeeded)
             {
                 _logger.LogWarning($"Failed to create user with email {createStudentDTO.StudentEmailAddress}");
@@ -156,6 +157,25 @@ namespace New_School_Management_API.Data
         private string IsValidPassword(string password)
         {
             // Ensure password has at least one uppercase letter, one digit, and one special character
+            if (string.IsNullOrWhiteSpace(password))
+                return "Password is required";
+
+            if (password.Length < 8)
+                return "Password must be at least 8 characters";
+
+            if (!password.Any(char.IsUpper))
+                return "Password must contain at least one uppercase letter";
+
+            if (!password.Any(char.IsLower))
+                return "Password must contain at least one lowercase letter";
+
+            if (!password.Any(char.IsDigit))
+                return "Password must contain at least one digit";
+
+            if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
+                return "Password must contain at least one special character";
+
+
             var regex = new Regex(@"^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+={}\[\]:;'<>?,./\\-]).+$");
             if (!regex.IsMatch(password))
             {
