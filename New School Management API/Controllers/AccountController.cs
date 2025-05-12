@@ -11,6 +11,8 @@ namespace New_School_Management_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [EnableRateLimiting("UserBasedRateLimit")]
+
     public class AccountController : ControllerBase
     {
         private readonly IAuthManager _authManager;

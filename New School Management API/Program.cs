@@ -15,18 +15,19 @@ using New_School_Management_API.UploadImage;
 using Serilog;
 using System.Text;
 using System.Text.Json;
+// Add rate limiting namespace
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
-     {
-         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-         options.JsonSerializerOptions.WriteIndented = true;
-
-
-     });
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        options.JsonSerializerOptions.WriteIndented = true;
+    });
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(Options =>
 {
@@ -49,15 +50,13 @@ builder.Services.AddSwaggerGen(Options =>
                     Type = ReferenceType.SecurityScheme,
                     Id = JwtBearerDefaults.AuthenticationScheme,
                 },
-
                 Scheme = "OAuth2",
                 Name = JwtBearerDefaults.AuthenticationScheme,
                 In = ParameterLocation.Header
             },
-            //Array.Empty<string>()
-            new List<string> ()
+            new List<string>()
         }
-});
+    });
 });
 
 // Configure Serilog
@@ -73,12 +72,10 @@ builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IAuthManager, AuthManager>();
 builder.Services.AddMemoryCache();
 
-
-//EmailService
+// EmailService
 builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection("ApplicationSettings"));
 builder.Services.AddTransient<IEmailService, EmailService>();
-
 
 // IdentityUser 
 builder.Services.Configure<IdentityOptions>(
@@ -92,8 +89,7 @@ builder.Services.Configure<IdentityOptions>(
         options.Password.RequiredUniqueChars = 1;
     });
 
-//Adding Authentication
-
+// Adding Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -110,13 +106,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-// Ensure correct Auth DB is used // Use APIUser instead of IdentityUser because it's inherit from id
+// Ensure correct Auth DB is used
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<StudentManagementAuthDB>()
     .AddDefaultTokenProviders();
 
-
-//HttpContextAccessor
+// HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 
 // Register DbContext
@@ -125,7 +120,7 @@ builder.Services.AddDbContext<StudentManagementDB>(options =>
     options.UseSqlServer(connectionString));
 
 builder.Services.AddDbContext<StudentManagementAuthDB>(options => options.
-UseSqlServer(builder.Configuration.GetConnectionString("StudentManagementAuthDB")));
+    UseSqlServer(builder.Configuration.GetConnectionString("StudentManagementAuthDB")));
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -136,12 +131,46 @@ builder.Services.AddCors(options =>
         .AllowAnyMethod());
 });
 
+// Add Rate Limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.AddFixedWindowLimiter("BasicRateLimit", opt =>
+    {
+        opt.PermitLimit = 100;
+        opt.Window = TimeSpan.FromMinutes(1);
+        opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+        opt.QueueLimit = 10;
+    })
+    .AddPolicy("UserBasedRateLimit", partitioner => PartitionedRateLimiter.Create<HttpContext, string>(context =>
+    {
+        // Use the authenticated user's ID as the partition key, or fall back to IP if not authenticated
+        var userId = context.User.Identity?.IsAuthenticated == true
+            ? context.User.FindFirst("uid")?.Value ?? "anonymous"
+            : context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+        return RateLimitPartition.GetFixedWindowLimiter(userId, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 50, // Stricter limit for authenticated users
+            Window = TimeSpan.FromMinutes(1),
+            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+            QueueLimit = 5
+        });
+    }));
 
-//using OData
-//builder.Services.AddControllers().AddOData(Options =>
-//{
-//    Options.Select().Filter().OrderBy();
-//});
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        await context.HttpContext.Response.WriteAsync(
+            JsonSerializer.Serialize(new { message = "Too many requests. Please try again later." }),
+            token);
+    };
+});
+
+
+// Using OData
+builder.Services.AddControllers().AddOData(Options =>
+{
+    Options.Select().Filter().OrderBy();
+});
 
 var app = builder.Build();
 
@@ -162,6 +191,9 @@ if (app.Environment.IsDevelopment())
 app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
+
+// Add rate limiting middleware before authentication/authorization
+app.UseRateLimiter();
 
 app.UseAuthentication();
 
