@@ -15,9 +15,9 @@ using New_School_Management_API.UploadImage;
 using Serilog;
 using System.Text;
 using System.Text.Json;
-// Add rate limiting namespace
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication.Cookies; // Added for cookie authentication
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +39,14 @@ builder.Services.AddSwaggerGen(Options =>
         Type = SecuritySchemeType.ApiKey,
         Scheme = JwtBearerDefaults.AuthenticationScheme,
     });
-
+    // Add cookie authentication to Swagger
+    Options.AddSecurityDefinition("CookieAuth", new OpenApiSecurityScheme
+    {
+        Name = "Cookie",
+        In = ParameterLocation.Cookie,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "CookieAuth",
+    });
     Options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -53,6 +60,20 @@ builder.Services.AddSwaggerGen(Options =>
                 Scheme = "OAuth2",
                 Name = JwtBearerDefaults.AuthenticationScheme,
                 In = ParameterLocation.Header
+            },
+            new List<string>()
+        },
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "CookieAuth",
+                },
+                Scheme = "CookieAuth",
+                Name = "CookieAuth",
+                In = ParameterLocation.Cookie
             },
             new List<string>()
         }
@@ -89,22 +110,38 @@ builder.Services.Configure<IdentityOptions>(
         options.Password.RequiredUniqueChars = 1;
     });
 
-// Adding Authentication
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+// Adding Authentication (JWT + Cookie)
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+{
+    options.Cookie.Name = "SchoolManagementAuth";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(10); // 10-minute cookie lifetime
+    options.SlidingExpiration = true; // Renew cookie if used within 10 minutes
+    options.LoginPath = "/api/auth/login";
+    options.LogoutPath = "/api/auth/logout";
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ClockSkew = TimeSpan.Zero,
-            ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-            ValidAudience = builder.Configuration["JwtSettings:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
-        };
-    });
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ClockSkew = TimeSpan.Zero,
+        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
+        ValidAudience = builder.Configuration["JwtSettings:Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
+    };
+});
 
 // Ensure correct Auth DB is used
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -119,8 +156,8 @@ var connectionString = builder.Configuration.GetConnectionString("StudentManagem
 builder.Services.AddDbContext<StudentManagementDB>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddDbContext<StudentManagementAuthDB>(options => options.
-    UseSqlServer(builder.Configuration.GetConnectionString("StudentManagementAuthDB")));
+builder.Services.AddDbContext<StudentManagementAuthDB>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("StudentManagementAuthDB")));
 
 // Configure CORS
 builder.Services.AddCors(options =>
@@ -141,30 +178,32 @@ builder.Services.AddRateLimiter(options =>
         opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         opt.QueueLimit = 10;
     })
-    .AddPolicy("UserBasedRateLimit", partitioner => PartitionedRateLimiter.Create<HttpContext, string>(context =>
+    .AddPolicy<string>("UserBasedRateLimit", partitioner => PartitionedRateLimiter.Create<HttpContext, string>(context =>
     {
-        // Use the authenticated user's ID as the partition key, or fall back to IP if not authenticated
         var userId = context.User.Identity?.IsAuthenticated == true
             ? context.User.FindFirst("uid")?.Value ?? "anonymous"
             : context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
         return RateLimitPartition.GetFixedWindowLimiter(userId, _ => new FixedWindowRateLimiterOptions
         {
-            PermitLimit = 50, // Stricter limit for authenticated users
+            PermitLimit = 50,
             Window = TimeSpan.FromMinutes(1),
             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-            QueueLimit = 5
+            QueueLimit = 10
         });
     }));
+
 
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.OnRejected = async (context, token) =>
     {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        context.HttpContext.Response.ContentType = "application/json";
+        context.HttpContext.Response.Headers.Add("Retry-After", "60");
         await context.HttpContext.Response.WriteAsync(
             JsonSerializer.Serialize(new { message = "Too many requests. Please try again later." }),
             token);
     };
 });
-
 
 // Using OData
 builder.Services.AddControllers().AddOData(Options =>
@@ -192,7 +231,7 @@ app.UseCors("AllowAll");
 
 app.UseHttpsRedirection();
 
-// Add rate limiting middleware before authentication/authorization
+// Add rate limiting middleware before authentication
 app.UseRateLimiter();
 
 app.UseAuthentication();

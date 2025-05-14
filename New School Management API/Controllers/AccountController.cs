@@ -1,11 +1,17 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.CodeAnalysis.CSharp;
 using New_School_Management_API.Data;
 using New_School_Management_API.DTO;
 using New_School_Management_API.EmailService;
 using New_School_Management_API.ModelValidations;
 using New_School_Management_API.StudentDTO;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
+
 
 namespace New_School_Management_API.Controllers
 {
@@ -37,7 +43,7 @@ namespace New_School_Management_API.Controllers
 
 
         [HttpPost("API/Login/Auth")]
-        public async Task <IActionResult> Login (LoginDTO loginDTO)
+        public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
             var result = await _authManager.Login(loginDTO);
             var IpAddress = HttpContext.Connection.RemoteIpAddress.ToString();
@@ -45,5 +51,15 @@ namespace New_School_Management_API.Controllers
             return Ok(result);
         }
 
+
+        [HttpPost("user/logout/auth")]
+        [Authorize (AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+        [EnableRateLimiting("BasicRateLimit")]
+        public async Task<IActionResult> Logout()
+        {
+            // Sign out and delete the cookie
+            await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            return Ok(new { message = "Logout successful" });
+        }
     }
 }
