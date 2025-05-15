@@ -82,6 +82,14 @@ namespace New_School_Management_API.StudentRepository
 
         public async Task<PageResponse<GetStudentRecordDTO>> GetStudentsByLevelAsync(int currentLevel, int pageNumber, int pageSize)
         {
+
+            if (currentLevel < 100 || currentLevel > 400 && pageNumber < 1 || pageSize < 1)
+            {
+                return new PageResponse<GetStudentRecordDTO>
+                {
+                    ErrorMessage = ("Current level must be between 100 and 400, \"Page number and page size must be greater than 0.\"") 
+                };
+            }
             // Calculate the number of records to skip
             int skip = (pageNumber - 1) * pageSize;
 

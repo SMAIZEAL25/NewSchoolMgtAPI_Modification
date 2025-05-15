@@ -5,6 +5,10 @@ using New_School_Management_API.Data;
 using New_School_Management_API.ModelValidations;
 using New_School_Management_API.StudentDTO;
 using New_School_Management_API.StudentRepository;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.OData.Query;
 
 
 namespace New_School_Management_API.Controllers
@@ -36,19 +40,14 @@ namespace New_School_Management_API.Controllers
         }
 
 
-        [HttpGet("/GetStudentsByCurrentLevel")]
-        //[Authorize(Roles = "Writer")]
+        [HttpGet("GetStudentsByCurrentLevel")]
+        [EnableQuery]
+        [Authorize(AuthenticationSchemes = $"{CookieAuthenticationDefaults.AuthenticationScheme},{JwtBearerDefaults.AuthenticationScheme}",Roles = "Writer")]
+        [EnableRateLimiting("UserBasedRateLimit")]
+       
         public async Task<IActionResult> GetStudentsByCurrentLevel(int currentLevel, int pageNumber = 1, int pageSize = 20)
         {
             _logger.LogInformation($"Fetching students for level {currentLevel}, page {pageNumber}, page size {pageSize}");
-
-            // Validate the current level    Validate the page number and page size
-            if (currentLevel < 100 || currentLevel > 400 && pageNumber < 1 || pageSize < 1)
-            {
-                return BadRequest("Current level must be between 100 and 400, \"Page number and page size must be greater than 0.\"");
-            }
-
-            // Validate the page number and page size //if (pageNumber < 1 || pageSize < 1) //{//    return BadRequest("Page number and page size must be greater than 0.");//}
             
             try
             {
@@ -72,6 +71,8 @@ namespace New_School_Management_API.Controllers
 
 
         [HttpGet("View/StudentResult")]
+        [Authorize(AuthenticationSchemes = $"{CookieAuthenticationDefaults.AuthenticationScheme},{JwtBearerDefaults.AuthenticationScheme}", Roles = "Writer")]
+        [EnableRateLimiting("UserBasedRateLimit")]
         //[Authorize(Roles = "Writer, Reader")]
         public async Task<StudentResponseClass> ViewStudentResult(string matricNumber)
         {

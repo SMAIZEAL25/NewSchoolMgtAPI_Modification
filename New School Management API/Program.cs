@@ -17,9 +17,22 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.Authentication.Cookies; // Added for cookie authentication
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.OData;
+using Microsoft.OData.ModelBuilder;
+using New_School_Management_API.Entities;
+using Microsoft.OData.Edm; // For EDM
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Create EDM for OData
+static IEdmModel GetEdmModel()
+{
+    var odataBuilder = new ODataConventionModelBuilder();
+    odataBuilder.EntitySet<StudentRecord>("Students");
+    // Add other entities as needed (e.g., Teacher)
+    return odataBuilder.GetEdmModel();
+}
 
 // Add services to the container.
 builder.Services.AddControllers()
@@ -27,27 +40,33 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.WriteIndented = true;
+    })
+    .AddOData(opt =>
+    {
+        opt.AddRouteComponents("api", GetEdmModel()) // Align with /api/Student route
+           .Select().Filter().OrderBy().Count().Expand()
+           .SetMaxTop(100); // Limit query results for performance
     });
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(Options =>
+builder.Services.AddSwaggerGen(options =>
 {
-    Options.SwaggerDoc("v1", new() { Title = "SchoolManagementAPI", Version = "v1" });
-    Options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
+    options.SwaggerDoc("v1", new() { Title = "SchoolManagementAPI", Version = "v1" });
+    options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
     {
         Name = "Authorization",
         In = ParameterLocation.Header,
         Type = SecuritySchemeType.ApiKey,
         Scheme = JwtBearerDefaults.AuthenticationScheme,
     });
-    // Add cookie authentication to Swagger
-    Options.AddSecurityDefinition("CookieAuth", new OpenApiSecurityScheme
+    options.AddSecurityDefinition("CookieAuth", new OpenApiSecurityScheme
     {
         Name = "Cookie",
         In = ParameterLocation.Cookie,
         Type = SecuritySchemeType.ApiKey,
         Scheme = "CookieAuth",
     });
-    Options.AddSecurityRequirement(new OpenApiSecurityRequirement
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
             new OpenApiSecurityScheme
@@ -57,7 +76,7 @@ builder.Services.AddSwaggerGen(Options =>
                     Type = ReferenceType.SecurityScheme,
                     Id = JwtBearerDefaults.AuthenticationScheme,
                 },
-                Scheme = "OAuth2",
+                Scheme = "Bearer", // Corrected: Matches HTTP Authorization header
                 Name = JwtBearerDefaults.AuthenticationScheme,
                 In = ParameterLocation.Header
             },
@@ -71,7 +90,7 @@ builder.Services.AddSwaggerGen(Options =>
                     Type = ReferenceType.SecurityScheme,
                     Id = "CookieAuth",
                 },
-                Scheme = "CookieAuth",
+                Scheme = "CookieAuth", // Corrected: Matches scheme name
                 Name = "CookieAuth",
                 In = ParameterLocation.Cookie
             },
@@ -86,7 +105,7 @@ builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingConfig).Assembly);
 
-// Register IUploadImage service
+// Register services
 builder.Services.AddScoped<IUploadImage, UploadImage>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
@@ -98,24 +117,23 @@ builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Emai
 builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection("ApplicationSettings"));
 builder.Services.AddTransient<IEmailService, EmailService>();
 
-// IdentityUser 
-builder.Services.Configure<IdentityOptions>(
-    options =>
-    {
-        options.Password.RequireDigit = false;
-        options.Password.RequireLowercase = false;
-        options.Password.RequireUppercase = false;
-        options.Password.RequireNonAlphanumeric = false;
-        options.Password.RequiredLength = 6;
-        options.Password.RequiredUniqueChars = 1;
-    });
+// Configure Identity options
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+});
 
-// Adding Authentication (JWT + Cookie)
+// Add Authentication (JWT + Cookie)
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Use cookies by default
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Challenge with cookies
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Sign in with cookies
 })
 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
 {
@@ -123,8 +141,8 @@ builder.Services.AddAuthentication(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Strict;
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(10); // 10-minute cookie lifetime
-    options.SlidingExpiration = true; // Renew cookie if used within 10 minutes
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+    options.SlidingExpiration = true;
     options.LoginPath = "/api/auth/login";
     options.LogoutPath = "/api/auth/logout";
 })
@@ -143,12 +161,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-// Ensure correct Auth DB is used
+// Configure Identity with Entity Framework
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<StudentManagementAuthDB>()
     .AddDefaultTokenProviders();
 
-// HttpContextAccessor
+// Add HttpContextAccessor
 builder.Services.AddHttpContextAccessor();
 
 // Register DbContext
@@ -159,16 +177,19 @@ builder.Services.AddDbContext<StudentManagementDB>(options =>
 builder.Services.AddDbContext<StudentManagementAuthDB>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("StudentManagementAuthDB")));
 
-// Configure CORS
+// Configure CORS with a more secure policy
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", b => b
-        .AllowAnyHeader()
-        .AllowAnyOrigin()
-        .AllowAnyMethod());
+    options.AddPolicy("AllowSpecificOrigins", builder =>
+    {
+        builder.WithOrigins("https://your-frontend.com") // Replace with actual frontend URL
+               .AllowAnyHeader()
+               .AllowAnyMethod()
+               .AllowCredentials(); // Required for cookies
+    });
 });
 
-// Add Rate Limiting
+// Add Rate Limiting (combined configuration)
 builder.Services.AddRateLimiter(options =>
 {
     options.AddFixedWindowLimiter("BasicRateLimit", opt =>
@@ -177,21 +198,23 @@ builder.Services.AddRateLimiter(options =>
         opt.Window = TimeSpan.FromMinutes(1);
         opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
         opt.QueueLimit = 10;
-    })
-    .AddPolicy<string>("UserBasedRateLimit", partitioner => PartitionedRateLimiter.Create<HttpContext, string>(context =>
-    {
-        var userId = context.User.Identity?.IsAuthenticated == true
-            ? context.User.FindFirst("uid")?.Value ?? "anonymous"
-            : context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-        return RateLimitPartition.GetFixedWindowLimiter(userId, _ => new FixedWindowRateLimiterOptions
-        {
-            PermitLimit = 50,
-            Window = TimeSpan.FromMinutes(1),
-            QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
-            QueueLimit = 10
-        });
-    }));
+    });
 
+    options.AddPolicy("UserBasedRateLimit", context =>
+    {
+        return RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.User.Identity?.IsAuthenticated == true
+                ? context.User.FindFirst("uid")?.Value ?? "anonymous"
+                : context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: userId => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 50,
+                Window = TimeSpan.FromMinutes(1),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 10
+            }
+        );
+    });
 
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
     options.OnRejected = async (context, token) =>
@@ -205,12 +228,6 @@ builder.Services.AddRateLimiter(options =>
     };
 });
 
-// Using OData
-builder.Services.AddControllers().AddOData(Options =>
-{
-    Options.Select().Filter().OrderBy();
-});
-
 var app = builder.Build();
 
 // Ensure the upload folder exists
@@ -220,14 +237,14 @@ if (!Directory.Exists(uploadFolder))
     Directory.CreateDirectory(uploadFolder);
 }
 
-// Configure the HTTP request pipeline.
+// Configure the HTTP request pipeline
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseCors("AllowAll");
+app.UseCors("AllowSpecificOrigins"); // Use the more secure CORS policy
 
 app.UseHttpsRedirection();
 

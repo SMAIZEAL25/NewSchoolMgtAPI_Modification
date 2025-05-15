@@ -54,7 +54,6 @@ namespace New_School_Management_API.Controllers
 
         [HttpPost("user/logout/auth")]
         [Authorize (AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
-        [EnableRateLimiting("BasicRateLimit")]
         public async Task<IActionResult> Logout()
         {
             // Sign out and delete the cookie
