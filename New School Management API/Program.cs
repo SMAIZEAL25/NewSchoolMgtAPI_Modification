@@ -21,7 +21,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.OData;
 using Microsoft.OData.ModelBuilder;
 using New_School_Management_API.Entities;
-using Microsoft.OData.Edm; // For EDM
+using Microsoft.OData.Edm;
+using System.Text.Json.Serialization; // For EDM
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,7 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
         options.JsonSerializerOptions.WriteIndented = true;
+        options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull; // Ignore null properties
     })
     .AddOData(opt =>
     {
@@ -100,7 +102,12 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // Configure Serilog
-builder.Host.UseSerilog((ctx, lc) => lc.WriteTo.Console().ReadFrom.Configuration(ctx.Configuration));
+builder.Host.UseSerilog((ctx, lc) => lc
+.WriteTo.Console()
+.ReadFrom.Configuration(ctx.Configuration)
+.Enrich.WithProperty("Application", "SchoolManagementAPI")
+.Filter.ByExcluding(logEvent => logEvent.Properties.ContainsKey("RequestBody") && logEvent.Properties["RequestBody"].ToString().Contains("Password"))); 
+
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(typeof(MappingConfig).Assembly);

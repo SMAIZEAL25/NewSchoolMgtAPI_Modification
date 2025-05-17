@@ -39,7 +39,7 @@ namespace New_School_Management_API.Data
             _logger = logger;
         }
 
-        public async Task<APIResponse<object>> Register (CreateStudentDTO createStudentDTO)
+        public async Task <APIResponse<object>> Register(CreateStudentDTO createStudentDTO)
         {
             var response = new APIResponse<object>
             {
@@ -48,108 +48,82 @@ namespace New_School_Management_API.Data
 
             _logger.LogInformation($"Registering user with email {createStudentDTO.StudentEmailAddress}");
 
-        
+            // 1. Validate user existence
             var userExists = await _userManager.FindByEmailAsync(createStudentDTO.StudentEmailAddress);
             if (userExists != null)
             {
                 _logger.LogWarning($"User already exists with email {createStudentDTO.StudentEmailAddress}");
                 response.IsSuccess = false;
+                response.StatusCode = HttpStatusCode.Conflict;
                 response.ErrorMessages.Add("User already exists with this email.");
                 return response;
             }
 
-         
+            // 2. Validate password
             var passwordValidationMessage = IsValidPassword(createStudentDTO.Password);
             if (!string.IsNullOrEmpty(passwordValidationMessage))
             {
-                _logger.LogWarning($"Password does not meet requirements for email {createStudentDTO.StudentEmailAddress}");
+                _logger.LogWarning($"Password validation failed for email {createStudentDTO.StudentEmailAddress}");
                 response.IsSuccess = false;
+                response.StatusCode = HttpStatusCode.BadRequest;
                 response.ErrorMessages.Add(passwordValidationMessage);
                 return response;
             }
 
-           
+            // 3. Create IdentityUser
             var identityUser = new IdentityUser
             {
-                UserName = createStudentDTO.LastName, 
-                Email = createStudentDTO.StudentEmailAddress,
-                PasswordHash = createStudentDTO.Password
+                UserName = createStudentDTO.StudentEmailAddress, // Use email as username
+                Email = createStudentDTO.StudentEmailAddress
             };
 
-            var creationResult = await _userManager.CreateAsync(identityUser);
+            var creationResult = await _userManager.CreateAsync(identityUser, createStudentDTO.Password);
             if (!creationResult.Succeeded)
             {
-                _logger.LogWarning($"Failed to create user with email {createStudentDTO.StudentEmailAddress}");
+                _logger.LogWarning($"User creation failed for email {createStudentDTO.StudentEmailAddress}");
                 response.IsSuccess = false;
+                response.StatusCode = HttpStatusCode.InternalServerError;
                 response.ErrorMessages.AddRange(creationResult.Errors.Select(e => e.Description));
                 return response;
             }
 
-            var roleExists = await _roleManager.RoleExistsAsync(createStudentDTO.Roles);
-            if (!roleExists)
-            {
-                var roleCreationResult = await _roleManager.CreateAsync(new IdentityRole(createStudentDTO.Roles));
-                if (!roleCreationResult.Succeeded)
-                {
-                    _logger.LogWarning($"Failed to create role {createStudentDTO.Roles}");
-                    response.IsSuccess = false;
-                    response.ErrorMessages.Add("Failed to create the role. Please try again.");
-                    return response;
-                }
-            }
-
-          
+            // 4. Assign role
             var addToRoleResult = await _userManager.AddToRoleAsync(identityUser, createStudentDTO.Roles);
             if (!addToRoleResult.Succeeded)
             {
-                _logger.LogWarning($"Failed to assign role {createStudentDTO.Roles} to user {createStudentDTO.StudentEmailAddress}");
+                _logger.LogWarning($"Role assignment failed for user {createStudentDTO.StudentEmailAddress}");
                 response.IsSuccess = false;
-                response.ErrorMessages.Add("Failed to assign the user to the role.");
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                response.ErrorMessages.Add("Failed to assign user role.");
                 return response;
             }
 
-            
+            // 5. Generate and save student record
             try
             {
-                
                 var matricNumber = await GenerateMatricNumberAsync(createStudentDTO.Faculty, createStudentDTO.Department);
-                createStudentDTO.StudentMatricNumber = matricNumber;
+                var studentRecord = _mapper.Map<StudentRecord>(createStudentDTO);
+                studentRecord.IdentityUserId = identityUser.Id;
+
+                await _studentRepository.creataStudentRecord(studentRecord);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error generating matric number: {ex.Message}");
+                _logger.LogError(ex, $"Failed to save student record for {createStudentDTO.StudentEmailAddress}");
                 response.IsSuccess = false;
-                response.ErrorMessages.Add("Failed to generate matric number. Please ensure faculty and department are provided.");
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                response.ErrorMessages.Add("Registration completed, but student record could not be saved. Contact support.");
                 return response;
             }
 
-          
-            var studentRecord = _mapper.Map<StudentRecord>(createStudentDTO);
-            studentRecord.IdentityUserId = identityUser.Id; // Link IdentityUser with StudentRecord
-
-            // Save student record to database
-            try
-            {
-                var studentSaveResult = await _studentRepository.creataStudentRecord(studentRecord);
-                if (!studentSaveResult)
-                {
-                    _logger.LogWarning($"Failed to save student details for email {createStudentDTO.StudentEmailAddress}");
-                    response.IsSuccess = false;
-                    response.ErrorMessages.Add("Failed to save student details. Please try again.");
-                    return response;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Exception while saving student data: {ex.Message}");
-                response.IsSuccess = false;
-                response.ErrorMessages.Add("An error occurred while saving student details.");
-                return response;
-            }
-
-            _logger.LogInformation($"User registered successfully with email {createStudentDTO.StudentEmailAddress}");
+            // 6. Success response (no sensitive data)
             response.IsSuccess = true;
-            response.Message = "Registration successful with matric number " + createStudentDTO.StudentMatricNumber;
+            response.StatusCode = HttpStatusCode.Created;
+            response.Message = "Registration successful. Please log in.";
+            response.Data = null; // No sensitive data
+            response.Token = null; // No token for registration
+            response.ExpiresIn = default; // No expiration for registration
+            response.CookieSettings = null; // No cookie for registration
             return response;
         }
 

@@ -10,6 +10,7 @@ using New_School_Management_API.EmailService;
 using New_School_Management_API.ModelValidations;
 using New_School_Management_API.StudentDTO;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Azure;
 
 
 
@@ -36,6 +37,26 @@ namespace New_School_Management_API.Controllers
         public async Task<IActionResult> Register([FromBody] CreateStudentDTO createStudentDTO)
         {
             var result = await _authManager.Register(createStudentDTO);
+            if (result.CookieSettings != null)
+            {
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = result.CookieSettings.HttpOnly,
+                    Secure = result.CookieSettings.Secure,
+                    SameSite = result.CookieSettings.SameSite switch
+                    {
+                        "Lax" => SameSiteMode.Lax,
+                        "Strict" => SameSiteMode.Strict,
+                        "None" => SameSiteMode.None,
+                        _ => SameSiteMode.Lax
+                    },
+                    Expires = DateTime.UtcNow.AddSeconds(result.CookieSettings.MaxAge)
+                };
+                Response.Cookies.Append(result.CookieSettings.Name, result.CookieSettings.Value, cookieOptions);
+
+                // Remove CookieSettings from the response body to avoid exposure
+                result.CookieSettings = null;
+            }
             await _emailService.SendRegistrationSuccessEmailAsync(createStudentDTO.StudentEmailAddress, createStudentDTO.LastName);
             return Ok(result);
         }
@@ -43,6 +64,7 @@ namespace New_School_Management_API.Controllers
 
 
         [HttpPost("API/Login/Auth")]
+        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
             var result = await _authManager.Login(loginDTO);

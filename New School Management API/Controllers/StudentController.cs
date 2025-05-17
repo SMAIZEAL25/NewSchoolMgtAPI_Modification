@@ -8,7 +8,8 @@ using New_School_Management_API.StudentRepository;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.AspNetCore.OData.Query;
+using System.Web.Http.OData;
+
 
 
 namespace New_School_Management_API.Controllers
