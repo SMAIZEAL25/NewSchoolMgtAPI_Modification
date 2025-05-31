@@ -57,7 +57,7 @@ namespace New_School_Management_API.Controllers
                 // Remove CookieSettings from the response body to avoid exposure
                 result.CookieSettings = null;
             }
-            await _emailService.SendRegistrationSuccessEmailAsync(createStudentDTO.StudentEmailAddress, createStudentDTO.LastName);
+            // await _emailService.SendRegistrationSuccessEmailAsync(createStudentDTO.StudentEmailAddress, createStudentDTO.LastName);
             return Ok(result);
         }
 
@@ -80,6 +80,7 @@ namespace New_School_Management_API.Controllers
         {
             // Sign out and delete the cookie
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            //Response.Cookies.Delete("AuthToken");
             return Ok(new { message = "Logout successful" });
         }
     }

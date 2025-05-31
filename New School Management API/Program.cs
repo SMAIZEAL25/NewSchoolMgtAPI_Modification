@@ -18,22 +18,13 @@ using System.Text.Json;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.OData;
-using Microsoft.OData.ModelBuilder;
-using New_School_Management_API.Entities;
-using Microsoft.OData.Edm;
-using System.Text.Json.Serialization; // For EDM
+using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.OData; // For EDM
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Create EDM for OData
-static IEdmModel GetEdmModel()
-{
-    var odataBuilder = new ODataConventionModelBuilder();
-    odataBuilder.EntitySet<StudentRecord>("Students");
-    // Add other entities as needed (e.g., Teacher)
-    return odataBuilder.GetEdmModel();
-}
+
 
 // Add services to the container.
 builder.Services.AddControllers()
@@ -45,9 +36,9 @@ builder.Services.AddControllers()
     })
     .AddOData(opt =>
     {
-        opt.AddRouteComponents("api", GetEdmModel()) // Align with /api/Student route
+        opt.AddRouteComponents("api", ODataConfig.GetEdmModel()) // Align with /api/Student route
            .Select().Filter().OrderBy().Count().Expand()
-           .SetMaxTop(100); // Limit query results for performance
+           .SetMaxTop(100).Count(); // Limit query results for performance
     });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -84,20 +75,20 @@ builder.Services.AddSwaggerGen(options =>
             },
             new List<string>()
         },
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "CookieAuth",
-                },
-                Scheme = "CookieAuth", // Corrected: Matches scheme name
-                Name = "CookieAuth",
-                In = ParameterLocation.Cookie
-            },
-            new List<string>()
-        }
+        //{
+        //    new OpenApiSecurityScheme
+        //    {
+        //        Reference = new OpenApiReference
+        //        {
+        //            Type = ReferenceType.SecurityScheme,
+        //            Id = "CookieAuth",
+        //        },
+        //        Scheme = "CookieAuth", // Corrected: Matches scheme name
+        //        Name = "CookieAuth",
+        //        In = ParameterLocation.Cookie
+        //    },
+        //    new List<string>()
+        //}
     });
 });
 
@@ -148,7 +139,7 @@ builder.Services.AddAuthentication(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
     options.Cookie.SameSite = SameSiteMode.Strict;
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(10);
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
     options.SlidingExpiration = true;
     options.LoginPath = "/api/auth/login";
     options.LogoutPath = "/api/auth/logout";
