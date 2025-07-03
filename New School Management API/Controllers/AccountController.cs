@@ -4,13 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.CodeAnalysis.CSharp;
-using New_School_Management_API.Data;
-using New_School_Management_API.DTO;
-using New_School_Management_API.EmailService;
 using New_School_Management_API.ModelValidations;
-using New_School_Management_API.StudentDTO;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Azure;
+using New_School_Management_API.Services.EmailService;
+using New_School_Management_API.Domain.Data;
+using New_School_Management_API.Domain.StudentDTO;
 
 
 
@@ -64,7 +63,7 @@ namespace New_School_Management_API.Controllers
 
 
         [HttpPost("API/Login/Auth")]
-        [Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
+        //[Authorize(AuthenticationSchemes = CookieAuthenticationDefaults.AuthenticationScheme)]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
             var result = await _authManager.Login(loginDTO);

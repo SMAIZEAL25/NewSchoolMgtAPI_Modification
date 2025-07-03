@@ -4,13 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using New_School_Management_API.Data;
-using New_School_Management_API.Dbcontext;
-using New_School_Management_API.EmailService.EmailModel;
-using New_School_Management_API.EmailService;
-using New_School_Management_API.MapConfig;
-using New_School_Management_API.Repository;
-using New_School_Management_API.StudentRepository;
 using New_School_Management_API.UploadImage;
 using Serilog;
 using System.Text;
@@ -19,7 +12,14 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.OData; // For EDM
+using Microsoft.AspNetCore.OData;
+using New_School_Management_API.Repository.StudentRepository;
+using New_School_Management_API.Services.EmailService;
+using New_School_Management_API.Services.EmailService.EmailModel;
+using New_School_Management_API.Services.StudentServices;
+using New_School_Management_API.Domain.MapConfig;
+using New_School_Management_API.Domain.Data;
+using New_School_Management_API.Domain.Dbcontext;
 
 var builder = WebApplication.CreateBuilder(args);
 

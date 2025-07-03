@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using New_School_Management_API.Data;
-using New_School_Management_API.Entities;
-using New_School_Management_API.StudentDTO;
+using New_School_Management_API.Domain.Entities;
+using New_School_Management_API.Domain.StudentDTO;
 using New_School_Management_API.UploadImage;
 
 namespace New_School_Management_API.Controllers

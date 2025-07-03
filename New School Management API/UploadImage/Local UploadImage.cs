@@ -1,8 +1,8 @@
-﻿using New_School_Management_API.Dbcontext;
-using New_School_Management_API.Entities;
-using New_School_Management_API.Data;
-using New_School_Management_API.Repository;
+﻿using New_School_Management_API.Repository;
 using System.Net;
+using New_School_Management_API.Domain.Data;
+using New_School_Management_API.Domain.Entities;
+using New_School_Management_API.Domain.Dbcontext;
 
 namespace New_School_Management_API.UploadImage
 {

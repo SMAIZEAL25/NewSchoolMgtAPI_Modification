@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using New_School_Management_API.Dbcontext;
-using New_School_Management_API.QueryingDB;
+using New_School_Management_API.Domain.Dbcontext;
+using New_School_Management_API.PagInated_Response.QueryingDB;
 
 namespace New_School_Management_API.Repository
 {
