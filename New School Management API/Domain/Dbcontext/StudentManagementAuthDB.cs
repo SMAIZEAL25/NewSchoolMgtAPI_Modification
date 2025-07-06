@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using New_School_Management_API.Data;
+
 
 namespace New_School_Management_API.Domain.Dbcontext
 {

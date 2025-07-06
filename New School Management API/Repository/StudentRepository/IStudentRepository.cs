@@ -1,6 +1,4 @@
-﻿using New_School_Management_API.Data;
-using New_School_Management_API.DTO;
-using SchoolManagmentAPI.StudentDTO;
+﻿
 using New_School_Management_API.Domain.StudentDTO;
 using New_School_Management_API.Domain.Entities;
 

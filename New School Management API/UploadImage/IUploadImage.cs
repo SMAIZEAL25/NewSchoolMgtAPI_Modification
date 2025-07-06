@@ -1,4 +1,4 @@
-﻿using New_School_Management_API.Data;
+﻿
 using New_School_Management_API.Domain.Entities;
 
 namespace New_School_Management_API.UploadImage

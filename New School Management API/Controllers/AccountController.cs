@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.CodeAnalysis.CSharp;
-using New_School_Management_API.ModelValidations;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Azure;
 using New_School_Management_API.Services.EmailService;
 using New_School_Management_API.Domain.Data;
 using New_School_Management_API.Domain.StudentDTO;
+using New_School_Management_API.Domain.ModelValidations;
 
 
 

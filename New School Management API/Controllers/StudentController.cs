@@ -1,7 +1,6 @@
 ﻿
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using New_School_Management_API.ModelValidations;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using New_School_Management_API.Services.StudentServices;
 using New_School_Management_API.Domain.Data;
 using New_School_Management_API.Domain.StudentDTO;
+using New_School_Management_API.Domain.ModelValidations;
 
 
 

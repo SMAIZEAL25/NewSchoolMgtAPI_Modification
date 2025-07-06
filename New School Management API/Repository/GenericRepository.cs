@@ -4,7 +4,7 @@ using New_School_Management_API.PagInated_Response.QueryingDB;
 
 namespace New_School_Management_API.Repository
 {
-    public class GenericRepository <T>: IGenericRepository <T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : class
     {
         private readonly StudentManagementDB _studentManagementDB;
 
@@ -21,7 +21,7 @@ namespace New_School_Management_API.Repository
 
         }
 
-   
+
 
         public async Task DeleteAsync(int Id)
         {
@@ -45,7 +45,7 @@ namespace New_School_Management_API.Repository
 
         public async Task<T> GetByIdAsync(int id)
         {
-           return await _studentManagementDB.Set<T>().FindAsync(id);
+            return await _studentManagementDB.Set<T>().FindAsync(id);
         }
 
         public Task<PageResult<TResult>> PageResult<TResult>(QueriableParameter queriableParameter)
@@ -71,12 +71,12 @@ namespace New_School_Management_API.Repository
 
         public async Task UpdateAsync(T entity)
         {
-             _studentManagementDB.Update(entity);
-             await _studentManagementDB.SaveChangesAsync();
+            _studentManagementDB.Update(entity);
+            await _studentManagementDB.SaveChangesAsync();
         }
 
-       
+
     }
 
-    
+
 }

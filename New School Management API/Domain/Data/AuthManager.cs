@@ -8,6 +8,9 @@ using System.Text.RegularExpressions;
 using System.Net;
 using New_School_Management_API.Domain.StudentDTO;
 using New_School_Management_API.Domain.Entities;
+using New_School_Management_API.Repository.StudentRepository.StudentRepository;
+using New_School_Management_API.Repository.StudentRepository;
+
 
 namespace New_School_Management_API.Domain.Data
 {
@@ -24,7 +27,7 @@ namespace New_School_Management_API.Domain.Data
         public AuthManager(
             IMapper mapper,
             UserManager<IdentityUser> userManager,
-            IStudentRepository studentRepository,
+            StudentRepository.IStudentRepository studentRepository,
             RoleManager<IdentityRole> roleManager,
             IConfiguration configuration,
             ILogger<AuthManager> logger)

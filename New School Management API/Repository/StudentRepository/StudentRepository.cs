@@ -1,11 +1,10 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
-using New_School_Management_API.Data;
 using New_School_Management_API.Domain.Dbcontext;
 using New_School_Management_API.Domain.Entities;
 using New_School_Management_API.Domain.StudentDTO;
-using New_School_Management_API.DTO;
-using SchoolManagmentAPI.StudentDTO;
+
+
 
 
 namespace New_School_Management_API.Repository.StudentRepository
@@ -63,13 +62,11 @@ namespace New_School_Management_API.Repository.StudentRepository
         }
 
 
-
         public async Task UpdateAsync(StudentRecord studentRecord)
         {
             _dBContext.StudentRecords.Update(studentRecord);
             await _dBContext.SaveChangesAsync();
         }
-
 
 
         public async Task DeleteAsync(string studentMatricNumber)

@@ -20,6 +20,9 @@ using New_School_Management_API.Services.StudentServices;
 using New_School_Management_API.Domain.MapConfig;
 using New_School_Management_API.Domain.Data;
 using New_School_Management_API.Domain.Dbcontext;
+using New_School_Management_API.Repository.StudentRepository.StudentRepository;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
