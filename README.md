@@ -7,7 +7,7 @@ Solomon Chika Samuel
 
  Overview
 The New School Management API is a backend system built with ASP.NET Core Web API designed to manage student records, course registrations, and administrative operations in a school.
-It demonstrates clean architecture, separation of concerns, and asynchronous CRUD operations using Entity Framework Core and Repository Pattern.
+It demonstrates clean architecture, separation of concerns, and asynchronous CRUD operations using Entity Framework Core and the Repository Pattern.
 
  Technology Stack
 Category	Tools & Frameworks
@@ -18,7 +18,7 @@ Database	SQL Server
 Design Pattern	Repository Pattern, Dependency Injection
 Validation	Data Annotations, Custom Model Validation
 Authentication (optional)	JWT or Identity (future expansion)
-Tools	Visual Studio / VS Code, Git, Postman
+Tools	: Visual Studio / VS Code, Git, Postman
 
 System Architecture
 Layers:
@@ -33,40 +33,51 @@ Service Layer – Business logic operations (e.g., email notifications, student 
 
 Data Layer – Manages the DbContext and migrations.
 
+Database 
+
+SqlSevers
+
+
 Project Structure
-pgsql
-Copy code
+
 NewSchoolMgtAPI_Modification
-│
-├── Controllers
-│   ├── AccountController.cs
-│   ├── StudentController.cs
-│   └── UploadfileController.cs
-│
-├── Domain
-│   ├── Data
-│   │   ├── APIResponse.cs
-│   │   ├── APIUser.cs
-│   │   ├── AuthManager.cs
-│   │   └── TokenResult.cs
-│   ├── Entities
-│   │   ├── Course.cs
-│   │   ├── CourseRegistration.cs
-│   │   ├── StudentRecord.cs
-│   │   └── Upload.cs
-│   ├── Repository
-│   │   ├── GenericRepository.cs
-│   │   ├── StudentRepository.cs
-│   │   └── IGenericRepository.cs
-│   ├── Services
-│   │   ├── StudentServices.cs
-│   │   ├── EmailService.cs
-│   │   └── StudentTransaction.cs
-│   └── Dcontext
-│       └── StudentManagementDB.cs
-│
-└── Properties
-    └── launchSettings.json
+
+Controllers
+AccountController.cs
+StudentController.cs
+UploadfileController.cs
+
+Domain
+Data
+APIResponse.cs
+APIUser.cs
+AuthManager.cs
+TokenResult.cs
+
+Entities
+ Course.cs
+ CourseRegistration.cs
+ StudentRecord.cs
+ Upload.cs
+ 
+ Repository
+ GenericRepository.cs
+ StudentRepository.cs
+ IGenericRepository.cs
+ 
+
+
+Services
+StudentServices.cs
+EmailService.cs
+StudentTransaction.cs
+
+Dcontext
+StudentManagementDB.cs
+
+Properties
+launchSettings.json
+
 Core Functionalities
 ✅ 1. Student Management
 
