@@ -8,7 +8,6 @@ using System.Text.RegularExpressions;
 using System.Net;
 using New_School_Management_API.Domain.StudentDTO;
 using New_School_Management_API.Domain.Entities;
-using New_School_Management_API.Repository.StudentRepository.StudentRepository;
 using New_School_Management_API.Repository.StudentRepository;
 
 
@@ -27,7 +26,7 @@ namespace New_School_Management_API.Domain.Data
         public AuthManager(
             IMapper mapper,
             UserManager<IdentityUser> userManager,
-            StudentRepository.IStudentRepository studentRepository,
+            IStudentRepository studentRepository,
             RoleManager<IdentityRole> roleManager,
             IConfiguration configuration,
             ILogger<AuthManager> logger)
@@ -121,10 +120,9 @@ namespace New_School_Management_API.Domain.Data
             response.IsSuccess = true;
             response.StatusCode = HttpStatusCode.Created;
             response.Message = "Registration successful. Please log in.";
-            response.Data = null; // No sensitive data
-            response.Token = null; // No token for registration
-            response.ExpiresIn = default; // No expiration for registration
-            response.CookieSettings = null; // No cookie for registration
+            response.Data = null; 
+            response.Token = null; 
+            response.ExpiresIn = default; 
             return response;
         }
 

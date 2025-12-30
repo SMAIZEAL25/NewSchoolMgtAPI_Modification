@@ -13,15 +13,15 @@ namespace New_School_Management_API.Domain.Data
         public List<string> ErrorMessages { get; set; } = new List<string>();
         public string Token { get; set; }
         public DateTime? ExpiresIn { get; set; } // Nullable to indicate when not used
-        public CookieSettings CookieSettings { get; set; }
-        public T Data { get; set; } // Added for completeness, as used in previous responses
+        
+        public T Data { get; set; } 
 
 
-        // Optional: Control serialization to exclude null properties
-        public bool ShouldSerializeToken() => Token != null;
-        public bool ShouldSerializeExpiresIn() => ExpiresIn.HasValue;
-        public bool ShouldSerializeCookieSettings() => CookieSettings != null;
-        public bool ShouldSerializeData() => Data != null;
+        //// Optional: Control serialization to exclude null properties
+        //public bool ShouldSerializeToken() => Token != null;
+        //public bool ShouldSerializeExpiresIn() => ExpiresIn.HasValue;
+
+        //public bool ShouldSerializeData() => Data != null;
 
 
     }

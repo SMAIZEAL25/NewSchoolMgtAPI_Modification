@@ -10,6 +10,8 @@ namespace New_School_Management_API.Domain.Entities
         [Required]
         public string CourseName { get; set; }
 
+        public int Credit { get; set; }
+
         // Navigation property for CourseRegistrations
         public ICollection<CourseRegistration> CourseRegistrations { get; set; } = new List<CourseRegistration>();
     }

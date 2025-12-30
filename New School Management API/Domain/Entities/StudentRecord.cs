@@ -1,4 +1,4 @@
-﻿using New_School_Management_API.Entities.Student_Transaction;
+﻿
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,7 +14,7 @@ namespace New_School_Management_API.Domain.Entities
 
         [Required]
         [MaxLength(30)]
-        public required string SurName { get; set; }
+        public required string FirsName { get; set; }
 
         [Required]
         [MaxLength(30)]
@@ -27,7 +27,7 @@ namespace New_School_Management_API.Domain.Entities
         public DateTime DateOfBirth { get; set; }
 
         [Required]
-        public required string Sex { get; set; }
+        public required string Gender { get; set; }
 
         [Required]
         [RegularExpression(@"^[^\s@]+@[^\s@]+\.[^\s@]+$")]
@@ -59,16 +59,8 @@ namespace New_School_Management_API.Domain.Entities
 
         public int Transaction_Id { get; set; }
 
-        public int CourseRgistration_Id { get; set; }
+        public int CourseRegistration_Id { get; set; }
 
-        // Navigation properties
-        //public ICollection<TransactionDetails> Transactions { get; set; }
-
-        //public ICollection<CourseRegistration> CourseRegistrations { get; set; }
-
-        //public ICollection<Upload> UploadedFiles { get; set; }
-
-        public ICollection<TransactionDetails> Transactions { get; set; } = new List<TransactionDetails>();
         public ICollection<CourseRegistration> CourseRegistrations { get; set; } = new List<CourseRegistration>();
         public ICollection<Upload> UploadedFiles { get; set; } = new List<Upload>();
     }

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using New_School_Management_API.Domain.Entities;
-using New_School_Management_API.Entities.Student_Transaction;
+
 
 namespace New_School_Management_API.Domain.Dbcontext
 {
@@ -15,7 +15,7 @@ namespace New_School_Management_API.Domain.Dbcontext
         public DbSet<Course> Courses { get; set; }
         public DbSet<CourseRegistration> CourseRegistrations { get; set; }
         public DbSet<Upload> Uploads { get; set; }
-        public DbSet<TransactionDetails> Transactions { get; set; } // Fixed naming
+       
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -47,21 +47,6 @@ namespace New_School_Management_API.Domain.Dbcontext
                         .HasForeignKey(u => u.Id)
                         .OnDelete(DeleteBehavior.Cascade);
 
-            // Configure TransactionDetails -> StudentRecord relationship
-            modelBuilder.Entity<TransactionDetails>()
-                .HasOne(t => t.Student)
-                .WithMany(s => s.Transactions)
-                .HasForeignKey(t => t.StudentId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Configure precision for decimal properties in TransactionDetails
-            modelBuilder.Entity<TransactionDetails>()
-                .Property(t => t.Amount)
-                .HasPrecision(18, 2);
-
-            modelBuilder.Entity<TransactionDetails>()
-                .Property(t => t.VAT)
-                .HasPrecision(18, 2);
         }
     }
 }

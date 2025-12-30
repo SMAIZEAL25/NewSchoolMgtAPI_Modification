@@ -10,18 +10,13 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.OData;
 using New_School_Management_API.Repository.StudentRepository;
-using New_School_Management_API.Services.EmailService;
-using New_School_Management_API.Services.EmailService.EmailModel;
 using New_School_Management_API.Services.StudentServices;
 using New_School_Management_API.Domain.MapConfig;
 using New_School_Management_API.Domain.Data;
 using New_School_Management_API.Domain.Dbcontext;
-using New_School_Management_API.Repository.StudentRepository.StudentRepository;
-
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,16 +47,12 @@ builder.Services.AddSwaggerGen(options =>
     {
         Name = "Authorization",
         In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = JwtBearerDefaults.AuthenticationScheme,
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        Description = "Enter 'Bearer {your JWT token}'"
     });
-    options.AddSecurityDefinition("CookieAuth", new OpenApiSecurityScheme
-    {
-        Name = "Cookie",
-        In = ParameterLocation.Cookie,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "CookieAuth",
-    });
+   
     options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         {
@@ -72,26 +63,13 @@ builder.Services.AddSwaggerGen(options =>
                     Type = ReferenceType.SecurityScheme,
                     Id = JwtBearerDefaults.AuthenticationScheme,
                 },
-                Scheme = "Bearer", // Corrected: Matches HTTP Authorization header
+                Scheme = "Bearer", 
                 Name = JwtBearerDefaults.AuthenticationScheme,
                 In = ParameterLocation.Header
             },
             new List<string>()
         },
-        //{
-        //    new OpenApiSecurityScheme
-        //    {
-        //        Reference = new OpenApiReference
-        //        {
-        //            Type = ReferenceType.SecurityScheme,
-        //            Id = "CookieAuth",
-        //        },
-        //        Scheme = "CookieAuth", // Corrected: Matches scheme name
-        //        Name = "CookieAuth",
-        //        In = ParameterLocation.Cookie
-        //    },
-        //    new List<string>()
-        //}
+
     });
 });
 
@@ -113,10 +91,8 @@ builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
 builder.Services.AddScoped<IAuthManager, AuthManager>();
 builder.Services.AddMemoryCache();
 
-// EmailService
-builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
-builder.Services.Configure<ApplicationSettings>(builder.Configuration.GetSection("ApplicationSettings"));
-builder.Services.AddTransient<IEmailService, EmailService>();
+
+
 
 // Configure Identity options
 builder.Services.Configure<IdentityOptions>(options =>
@@ -130,23 +106,16 @@ builder.Services.Configure<IdentityOptions>(options =>
 });
 
 // Add Authentication (JWT + Cookie)
+var jwtKey = builder.Configuration["Jwt:Key"]!;
+var jwtIssuer = builder.Configuration["Jwt:Issuer"]!;
+var jwtAudience = builder.Configuration["Jwt:Audience"]!;
+
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Use cookies by default
-    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Challenge with cookies
-    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Sign in with cookies
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
-{
-    options.Cookie.Name = "SchoolManagementAuth";
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    options.Cookie.SameSite = SameSiteMode.Strict;
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-    options.SlidingExpiration = true;
-    options.LoginPath = "/api/auth/login";
-    options.LogoutPath = "/api/auth/logout";
-})
+
 .AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -156,9 +125,9 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
         ClockSkew = TimeSpan.Zero,
-        ValidIssuer = builder.Configuration["JwtSettings:Issuer"],
-        ValidAudience = builder.Configuration["JwtSettings:Audience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:Key"]))
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
     };
 });
 
@@ -185,8 +154,8 @@ builder.Services.AddCors(options =>
     {
         builder.WithOrigins("https://your-frontend.com") // Replace with actual frontend URL
                .AllowAnyHeader()
-               .AllowAnyMethod()
-               .AllowCredentials(); // Required for cookies
+               .AllowAnyMethod();
+               
     });
 });
 
@@ -222,14 +191,14 @@ builder.Services.AddRateLimiter(options =>
     {
         context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
         context.HttpContext.Response.ContentType = "application/json";
-        context.HttpContext.Response.Headers.Add("Retry-After", "60");
+        context.HttpContext.Response.Headers.Append("Retry-After", "60");
         await context.HttpContext.Response.WriteAsync(
             JsonSerializer.Serialize(new { message = "Too many requests. Please try again later." }),
             token);
     };
 });
 
-var app = builder.Build();
+var app = builder.Build();  
 
 // Ensure the upload folder exists
 var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "UploadImageFloder");

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Caching.Memory;
 using New_School_Management_API.Domain.Data;
 using New_School_Management_API.Domain.StudentDTO;
 using New_School_Management_API.PagInated_Response;
+using New_School_Management_API.Repository.StudentRepository;
 using New_School_Management_API.Repository.StudentRepository.StudentRepository;
 
 

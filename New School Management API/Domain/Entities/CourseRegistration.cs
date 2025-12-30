@@ -10,20 +10,26 @@ namespace New_School_Management_API.Domain.Entities
         public int Id { get; set; }
 
         [Required]
-        public int StudentId { get; set; } // Changed from string to int to match StudentRecord.Id
+        public int StudentId { get; set; }
 
         [Required]
-        public string Courses { get; set; } // Comma-separated list of courses
+        public string Courses { get; set; }
+
+        [Required]
+        public string? CourseCode { get; set; }
+
+        [ForeignKey(nameof(CourseCode))]
+        public Course? Course { get; set; }
+
+        [Required]
+        public int Credit { get; set; } 
 
         public DateTime RegistrationDate { get; set; }
 
         // Navigation property to StudentRecord
         [ForeignKey(nameof(StudentId))]
-        public StudentRecord Student { get; set; }
+        public StudentRecord? Student { get; set; }
 
-        public string CourseCode { get; set; }
-
-        [ForeignKey(nameof(CourseCode))]
-        public Course Course { get; set; }
+        
     }
 }

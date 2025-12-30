@@ -1,10 +1,8 @@
-﻿
+﻿using New_School_Management_API.Domain.Entities;
 using New_School_Management_API.Domain.StudentDTO;
-using New_School_Management_API.Domain.Entities;
 
-namespace New_School_Management_API.Repository.StudentRepository.StudentRepository
+namespace New_School_Management_API.Repository.StudentRepository
 {
-
     public interface IStudentRepository
     {
         Task<bool> creataStudentRecord(StudentRecord studentRecord);
