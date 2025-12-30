@@ -11,7 +11,7 @@ It demonstrates clean architecture, separation of concerns, and asynchronous CRU
 
  Technology Stack
 Category	Tools & Frameworks
-Language	C# (.NET 6/7)
+Language	C# (.NET 8)
 Framework	ASP.NET Core Web API
 ORM	Entity Framework Core
 Database	SQL Server
@@ -74,6 +74,7 @@ StudentTransaction.cs
 
 Dcontext
 StudentManagementDB.cs
+StudentManagementAuthDB.cs
 
 Properties
 launchSettings.json
@@ -111,9 +112,7 @@ IGenericRepository for CRUD operations.
 
 StudentRepository for specialized student-related queries.
 
-✅ 6. Email Notifications (Optional Service)
 
-Uses EmailService for sending email confirmations or notifications.
 
 Sample Endpoint Documentation
 POST /api/student/register
@@ -147,7 +146,7 @@ API endpoints tested using Postman.
 
 Validation tested for model constraints.
 
-Integration testing for repository and services.
+Integration testing for the repository and services.
 
 Design Principles Applied
 SOLID Principles
