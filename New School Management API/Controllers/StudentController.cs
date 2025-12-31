@@ -17,7 +17,10 @@ namespace New_School_Management_API.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
-   
+    [EnableRateLimiting("UserBasedRateLimit")]
+    [ValidationModelState]
+    [Authorize(Roles = "Writer, Reader")]
+
 
     public class StudentController : ControllerBase
     {
@@ -32,8 +35,6 @@ namespace New_School_Management_API.Controllers
         }
 
         [HttpPut("/updateStudentRequest")]
-        [ValidationModelState]
-        [Authorize(Roles = "Writer, Reader")]
         public async Task<IActionResult> UpdateStudentClass(string studenmatricNumber,[FromBody] UpdateStudentDTO updateStudentDTO)
         {
             await _serviceRepository.UpdateStudentRecords(studenmatricNumber, updateStudentDTO);
@@ -42,9 +43,7 @@ namespace New_School_Management_API.Controllers
 
 
         [HttpGet("GetStudentsByCurrentLevel")]
-        [EnableQuery]
-        [EnableRateLimiting("UserBasedRateLimit")]
-       
+        [EnableQuery]              
         public async Task<IActionResult> GetStudentsByCurrentLevel(int currentLevel, int pageNumber = 1, int pageSize = 20)
         {
             _logger.LogInformation($"Fetching students for level {currentLevel}, page {pageNumber}, page size {pageSize}");
@@ -70,8 +69,7 @@ namespace New_School_Management_API.Controllers
 
 
 
-        [HttpGet("View/StudentResult")]
-        [Authorize(Roles = "Writer, Reader")]
+        [HttpGet("View/StudentResult")]        
         public async Task<StudentResponseClass> ViewStudentResult(string matricNumber)
         {
             bool isLoggedIn = User.Identity.IsAuthenticated; // Example: Check login status
