@@ -43,7 +43,6 @@ namespace New_School_Management_API.Controllers
 
         [HttpGet("GetStudentsByCurrentLevel")]
         [EnableQuery]
-        //[Authorize(AuthenticationSchemes = $"{CookieAuthenticationDefaults.AuthenticationScheme},{JwtBearerDefaults.AuthenticationScheme}",Roles = "Writer")]
         [EnableRateLimiting("UserBasedRateLimit")]
        
         public async Task<IActionResult> GetStudentsByCurrentLevel(int currentLevel, int pageNumber = 1, int pageSize = 20)
@@ -72,8 +71,6 @@ namespace New_School_Management_API.Controllers
 
 
         [HttpGet("View/StudentResult")]
-        //[Authorize(AuthenticationSchemes = $"{CookieAuthenticationDefaults.AuthenticationScheme},{JwtBearerDefaults.AuthenticationScheme}", Roles = "Writer")]
-        [EnableRateLimiting("UserBasedRateLimit")]
         [Authorize(Roles = "Writer, Reader")]
         public async Task<StudentResponseClass> ViewStudentResult(string matricNumber)
         {

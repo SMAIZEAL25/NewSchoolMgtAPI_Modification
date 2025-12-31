@@ -10,8 +10,7 @@ namespace New_School_Management_API.Repository.StudentRepository
         Task<List<StudentRecord>> GetStudentsByLevelAsync(int currentLevel, int skip, int take);
 
         Task<StudentRecord?> GetAsync(string studentMatricNumber);
-        Task<StudentRecord?> GetByMatricNumberAsync(string studentMatricNumber);
-        //Task<string> GetStudentAysnc (CheckResultDTO checkResult);
+        Task<StudentRecord?> GetByMatricNumberAsync(string studentMatricNumber);        
         IQueryable<StudentResponseClass> GetSpecifiRecordOfStudent(StudentResponseClass studentResponseClass);
         Task UpdateAsync(StudentRecord studentRecord);
         Task<bool> UserEmailAlreadyExist(string email);

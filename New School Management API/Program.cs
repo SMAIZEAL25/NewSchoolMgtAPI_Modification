@@ -12,12 +12,11 @@ using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.OData;
-using New_School_Management_API.Repository.StudentRepository;
 using New_School_Management_API.Services.StudentServices;
 using New_School_Management_API.Domain.MapConfig;
 using New_School_Management_API.Domain.Data;
 using New_School_Management_API.Domain.Dbcontext;
-
+using New_School_Management_API.Repository.StudentRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 

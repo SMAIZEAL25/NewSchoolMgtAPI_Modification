@@ -4,15 +4,15 @@ namespace New_School_Management_API.Domain.Entities
 {
     public class Course
     {
-        [Key]
-        public string CourseCode { get; set; } // Primary key
+        //[Key]
+        //public string CourseCode { get; set; } // Primary key
 
-        [Required]
-        public string CourseName { get; set; }
+        //[Required]
+        //public string CourseName { get; set; }
 
-        public int Credit { get; set; }
+        //public int Credit { get; set; }
 
-        // Navigation property for CourseRegistrations
-        public ICollection<CourseRegistration> CourseRegistrations { get; set; } = new List<CourseRegistration>();
+        //// Navigation property for CourseRegistrations
+        //public ICollection<CourseRegistration> CourseRegistrations { get; set; } = new List<CourseRegistration>();
     }
 }

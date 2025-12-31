@@ -6,7 +6,7 @@ using New_School_Management_API.Domain.Data;
 using New_School_Management_API.Domain.StudentDTO;
 using New_School_Management_API.PagInated_Response;
 using New_School_Management_API.Repository.StudentRepository;
-using New_School_Management_API.Repository.StudentRepository.StudentRepository;
+
 
 
 namespace New_School_Management_API.Services.StudentServices
@@ -106,7 +106,7 @@ namespace New_School_Management_API.Services.StudentServices
             var studentDTOs = students.Select(s => new GetStudentRecordDTO
             {
                 StudentMatriNumber = s.StudentMatricNumber,
-                SurName = s.SurName,
+                SurName = s.FirsName,
                 MiddleName = s.MiddleName,
                 LastName = s.LastName,
                 StudentEmail = s.StudentEmailAddress,
@@ -114,7 +114,7 @@ namespace New_School_Management_API.Services.StudentServices
                 Faculty = s.Faculty,
                 Department = s.Department,
                 StudentPhoneNumber = s.StudentPhoneNumber,
-                Sex = s.Sex,
+                Sex = s.Gender,
                 GPA = s.GPA,
             }).ToList();
 

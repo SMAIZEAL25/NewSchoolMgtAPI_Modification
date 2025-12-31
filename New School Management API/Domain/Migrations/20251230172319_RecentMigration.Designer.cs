@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using New_School_Management_API.Domain.Dbcontext;
 
@@ -11,9 +12,11 @@ using New_School_Management_API.Domain.Dbcontext;
 namespace New_School_Management_API.Migrations
 {
     [DbContext(typeof(StudentManagementDB))]
-    partial class StudentManagementDBModelSnapshot : ModelSnapshot
+    [Migration("20251230172319_RecentMigration")]
+    partial class RecentMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

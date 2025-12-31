@@ -1,12 +1,7 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using New_School_Management_API.Domain.Dbcontext;
 using New_School_Management_API.Domain.Entities;
 using New_School_Management_API.Domain.StudentDTO;
-using New_School_Management_API.Repository.StudentRepository;
-
-
-
 
 namespace New_School_Management_API.Repository.StudentRepository
 {
